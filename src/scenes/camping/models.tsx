@@ -6,62 +6,25 @@ import * as THREE from "three";
 import { assets } from "../../lib/asset-config.ts";
 import { useCampingStore, type SelectableId } from "../../stores/campingStore.ts";
 
-function tintVertices(geo: THREE.BufferGeometry, amt = 0.09) {
-  // ponytail: subtle per-vertex multiply variation, no image textures
-  if (geo.hasAttribute("color")) return;
-  const pos = geo.getAttribute("position");
-  if (!pos) return;
-  const arr = new Float32Array(pos.count * 3);
-  geo.computeBoundingBox();
-  const bb = geo.boundingBox;
-  const h = bb ? Math.max(bb.max.y - bb.min.y, 0.001) : 1;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-    const n = Math.sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453;
-    const jitter = 1 - (n - Math.floor(n)) * amt;
-    const ao = bb ? 0.94 + 0.06 * ((y - bb.min.y) / h) : 1;
-    arr[i * 3] = jitter * ao;
-    arr[i * 3 + 1] = jitter * ao;
-    arr[i * 3 + 2] = jitter * ao;
-  }
-  geo.setAttribute("color", new THREE.BufferAttribute(arr, 3));
-}
-
 function hygiene(root: THREE.Object3D) {
-  // textureless pipeline: strip image maps, enable vertex colors, flat shade faceted mats
+  // textureless pipeline: GLB ships M_ mats + vertex colors; keep them, only fix flags
   root.traverse((o) => {
     const mesh = o as THREE.Mesh;
     if (!mesh.isMesh) return;
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    const geo = mesh.geometry as THREE.BufferGeometry;
-    tintVertices(geo);
     const m = mesh.material as THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[];
     const mats = Array.isArray(m) ? m : [m];
     for (const mat of mats) {
       if (!mat || !("roughness" in mat)) continue;
-      if (mat.map) {
-        mat.map = null;
-        mat.needsUpdate = true;
-      }
-      mat.vertexColors = true;
       const n = (mat.name || "").toLowerCase();
-      if (n.includes("metal")) {
-        mat.metalness = 0.3;
-        mat.roughness = 0.6;
-      } else if (n.includes("flame") || n.includes("glow") || n.includes("light")) {
-        mat.roughness = 0.5;
-        mat.metalness = 0;
-      } else {
-        mat.metalness = 0;
-        if (mat.roughness < 0.7) mat.roughness = 0.85;
-      }
-      if (
-        n.includes("pine") || n.includes("bush") || n.includes("foliage") ||
+      if (n.includes("pine") || n.includes("bush") || n.includes("foliage") ||
         n.includes("rock") || n.includes("stone") || n.includes("flame")
       ) {
-        mat.flatShading = true;
-        mat.needsUpdate = true;
+        if (!mat.flatShading) {
+          mat.flatShading = true;
+          mat.needsUpdate = true;
+        }
       }
     }
   });
@@ -318,7 +281,7 @@ function LanternInner({ url, ...props }: { url: string } & JSX.IntrinsicElements
       });
       mixer.update(active ? dt : 0);
     } else if (swing.current) {
-      // ponytail: GLB ships no clips — procedural swing + glow pulse fallback
+      // ponytail: GLB ships no clips â€” procedural swing + glow pulse fallback
       const target = active ? Math.sin(t * 1.8) * 0.12 : 0;
       swing.current.rotation.z = THREE.MathUtils.damp(swing.current.rotation.z, target, 4, dt);
       swing.current.rotation.x = THREE.MathUtils.damp(

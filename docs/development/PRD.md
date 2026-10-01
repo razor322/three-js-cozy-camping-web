@@ -8,7 +8,7 @@
 **Platform:** Web  
 **Primary Stack:** React + Vite + React Router  
 **3D Stack:** Three.js + React Three Fiber  
-**3D Asset Pipeline:** Blender → GLB
+**3D Asset Pipeline:** Blender â†’ GLB
 
 ---
 
@@ -149,29 +149,29 @@ The application uses a lightweight client-side architecture.
 
 ```text
 Browser
-   │
-   ▼
+   â”‚
+   â–¼
 Vite
-   │
-   ▼
+   â”‚
+   â–¼
 React SPA
-   │
-   ├── React Router
-   │
-   ├── Zustand
-   │
-   └── React Three Fiber
-          │
-          ▼
+   â”‚
+   â”œâ”€â”€ React Router
+   â”‚
+   â”œâ”€â”€ Zustand
+   â”‚
+   â””â”€â”€ React Three Fiber
+          â”‚
+          â–¼
        Three.js
-          │
-          ▼
+          â”‚
+          â–¼
         WebGL
-          │
-          ▼
+          â”‚
+          â–¼
        GLB Assets
-          ▲
-          │
+          â–²
+          â”‚
        Blender
 ```
 
@@ -262,16 +262,16 @@ Initial route:
 
 ```text
 /
-└── /camping
+â””â”€â”€ /camping
 ```
 
 Recommended structure:
 
 ```text
 /
-├── /camping
-├── /about
-└── /experiments
+â”œâ”€â”€ /camping
+â”œâ”€â”€ /about
+â””â”€â”€ /experiments
 ```
 
 However, the initial MVP only requires:
@@ -293,8 +293,8 @@ ground.glb
 pine-tree.glb
 tent.glb
 campfire.glb
-logs.glb
 rocks.glb
+stump.glb
 bush.glb
 lantern.glb
 ```
@@ -303,15 +303,15 @@ Recommended public structure:
 
 ```text
 public/
-└── models/
-    ├── ground.glb
-    ├── pine-tree.glb
-    ├── tent.glb
-    ├── campfire.glb
-    ├── logs.glb
-    ├── rocks.glb
-    ├── bush.glb
-    └── lantern.glb
+â””â”€â”€ models/
+    â”œâ”€â”€ ground.glb
+    â”œâ”€â”€ pine-tree.glb
+    â”œâ”€â”€ tent.glb
+    â”œâ”€â”€ campfire.glb
+    â”œâ”€â”€ stump.glb
+    â”œâ”€â”€ rocks.glb
+    â”œâ”€â”€ bush.glb
+    â””â”€â”€ lantern.glb
 ```
 
 ---
@@ -322,7 +322,7 @@ Ground specification:
 
 ```text
 Shape: Rounded Square
-Size: approximately 18m × 18m
+Size: approximately 18m Ã— 18m
 Type: Low-poly terrain platform
 Center: Mostly flat
 Edges: Slight terrain variation
@@ -374,9 +374,9 @@ Structure:
 
 ```text
 Campfire
-├── Rocks
-├── Logs
-└── Campfire_Flame
+â”œâ”€â”€ Rocks
+â”œâ”€â”€ Logs
+â””â”€â”€ Campfire_Flame
 ```
 
 The flame is a static low-poly emissive mesh.
@@ -398,20 +398,20 @@ No Blender animation is required.
 Recommended composition:
 
 ```text
-                    🌲
+                    ðŸŒ²
 
-          🌲                 🌲
+          ðŸŒ²                 ðŸŒ²
 
-              🪨       🌿
+              ðŸª¨       ðŸŒ¿
 
-                    ⛺
+                    â›º
 
-                         🔥
-                       🪵🪵
+                         ðŸ”¥
+                       ðŸªµðŸªµ
 
-          🌿                  🪨
+          ðŸŒ¿                  ðŸª¨
 
-              🌲        🌲
+              ðŸŒ²        ðŸŒ²
 ```
 
 The scene should maintain:
@@ -427,7 +427,7 @@ The scene should maintain:
 
 # 16. Functional Requirements
 
-## FR-001 — 3D Scene
+## FR-001 â€” 3D Scene
 
 The application MUST render the camping environment using React Three Fiber.
 
@@ -438,7 +438,7 @@ Ground
 Pine Trees
 Tent
 Campfire
-Logs
+Stump seats
 Rocks
 Bushes
 Lantern
@@ -446,7 +446,7 @@ Lantern
 
 ---
 
-## FR-002 — GLB Loading
+## FR-002 â€” GLB Loading
 
 All Blender assets MUST be loaded as GLB.
 
@@ -460,7 +460,7 @@ Drei's `useGLTF` SHOULD be used for asset loading.
 
 ---
 
-## FR-003 — Camera
+## FR-003 â€” Camera
 
 The application MUST provide an isometric-style perspective.
 
@@ -482,7 +482,7 @@ Camera constraints should prevent:
 
 ---
 
-## FR-004 — Object Hover
+## FR-004 â€” Object Hover
 
 Interactive objects MUST provide visual feedback.
 
@@ -490,7 +490,7 @@ Possible implementation:
 
 ```text
 Hover
- ↓
+ â†“
 Subtle scale
 +
 Emissive/highlight
@@ -502,7 +502,7 @@ The effect should remain subtle.
 
 ---
 
-## FR-005 — Object Selection
+## FR-005 â€” Object Selection
 
 Interactive objects:
 
@@ -516,9 +516,9 @@ When selected:
 
 ```text
 Object
-   ↓
+   â†“
 Selection State
-   ↓
+   â†“
 Object Information Panel
 ```
 
@@ -592,11 +592,11 @@ Example concept:
 
 ```text
 scale.y
-   ↕
+   â†•
 rotation.z
-   ↕
+   â†•
 position.y
-   ↕
+   â†•
 ```
 
 ---
@@ -666,20 +666,20 @@ Changing environment mode SHOULD be animated.
 Target transition:
 
 ```text
-1–2 seconds
+1â€“2 seconds
 ```
 
 Example:
 
 ```text
 DAY
- ↓
+ â†“
 fade/lerp
- ↓
+ â†“
 SUNSET
- ↓
+ â†“
 fade/lerp
- ↓
+ â†“
 NIGHT
 ```
 
@@ -703,7 +703,7 @@ Blender is NOT required for rain.
 Recommended initial particle count:
 
 ```text
-500–1500
+500â€“1500
 ```
 
 Adaptive particle count SHOULD be considered for mobile devices.
@@ -726,9 +726,9 @@ Optional future behavior:
 
 ```text
 Rain
- ↓
+ â†“
 Campfire intensity decreases slightly
- ↓
+ â†“
 Ambient sound changes
 ```
 
@@ -743,22 +743,22 @@ It MUST NOT look like an admin dashboard.
 Example:
 
 ```text
-┌──────────────────────────────────────────────┐
-│ COZY CAMPING                         🌙 21:42│
-│                                              │
-│                                              │
-│                  3D SCENE                    │
-│                                              │
-│                                              │
-│                         ┌───────────────┐    │
-│                         │ CAMPFIRE      │    │
-│                         │ Burning       │    │
-│                         │               │    │
-│                         │ [ Turn Off ]  │    │
-│                         └───────────────┘    │
-│                                              │
-│       ☀ Day   🌅 Sunset   🌙 Night   🌧 Rain │
-└──────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ COZY CAMPING                         ðŸŒ™ 21:42â”‚
+â”‚                                              â”‚
+â”‚                                              â”‚
+â”‚                  3D SCENE                    â”‚
+â”‚                                              â”‚
+â”‚                                              â”‚
+â”‚                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚                         â”‚ CAMPFIRE      â”‚    â”‚
+â”‚                         â”‚ Burning       â”‚    â”‚
+â”‚                         â”‚               â”‚    â”‚
+â”‚                         â”‚ [ Turn Off ]  â”‚    â”‚
+â”‚                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                                              â”‚
+â”‚       â˜€ Day   ðŸŒ… Sunset   ðŸŒ™ Night   ðŸŒ§ Rain â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -799,65 +799,65 @@ interface CampingState {
 
 ```text
 cozy-camping/
-│
-├── public/
-│   └── models/
-│       ├── ground.glb
-│       ├── pine-tree.glb
-│       ├── tent.glb
-│       ├── campfire.glb
-│       ├── logs.glb
-│       ├── rocks.glb
-│       ├── bush.glb
-│       └── lantern.glb
-│
-├── src/
-│   │
-│   ├── app/
-│   │   ├── App.tsx
-│   │   └── routes.tsx
-│   │
-│   ├── scenes/
-│   │   └── camping/
-│   │       ├── CampingScene.tsx
-│   │       ├── Ground.tsx
-│   │       ├── Forest.tsx
-│   │       ├── Tent.tsx
-│   │       ├── Campfire.tsx
-│   │       ├── Lantern.tsx
-│   │       ├── Rocks.tsx
-│   │       ├── Bushes.tsx
-│   │       └── Logs.tsx
-│   │
-│   ├── effects/
-│   │   ├── FireEffect.tsx
-│   │   ├── RainEffect.tsx
-│   │   ├── DayNightEffect.tsx
-│   │   └── LightingEffect.tsx
-│   │
-│   ├── components/
-│   │   ├── Header.tsx
-│   │   ├── EnvironmentControls.tsx
-│   │   ├── ObjectPanel.tsx
-│   │   └── LoadingScreen.tsx
-│   │
-│   ├── stores/
-│   │   └── campingStore.ts
-│   │
-│   ├── lib/
-│   │   ├── scene-config.ts
-│   │   └── asset-config.ts
-│   │
-│   ├── styles/
-│   │   └── globals.css
-│   │
-│   └── main.tsx
-│
-├── index.html
-├── vite.config.ts
-├── tsconfig.json
-├── package.json
-└── README.md
+â”‚
+â”œâ”€â”€ public/
+â”‚   â””â”€â”€ models/
+â”‚       â”œâ”€â”€ ground.glb
+â”‚       â”œâ”€â”€ pine-tree.glb
+â”‚       â”œâ”€â”€ tent.glb
+â”‚       â”œâ”€â”€ campfire.glb
+â”‚       â”œâ”€â”€ stump.glb
+â”‚       â”œâ”€â”€ rocks.glb
+â”‚       â”œâ”€â”€ bush.glb
+â”‚       â””â”€â”€ lantern.glb
+â”‚
+â”œâ”€â”€ src/
+â”‚   â”‚
+â”‚   â”œâ”€â”€ app/
+â”‚   â”‚   â”œâ”€â”€ App.tsx
+â”‚   â”‚   â””â”€â”€ routes.tsx
+â”‚   â”‚
+â”‚   â”œâ”€â”€ scenes/
+â”‚   â”‚   â””â”€â”€ camping/
+â”‚   â”‚       â”œâ”€â”€ CampingScene.tsx
+â”‚   â”‚       â”œâ”€â”€ Ground.tsx
+â”‚   â”‚       â”œâ”€â”€ Forest.tsx
+â”‚   â”‚       â”œâ”€â”€ Tent.tsx
+â”‚   â”‚       â”œâ”€â”€ Campfire.tsx
+â”‚   â”‚       â”œâ”€â”€ Lantern.tsx
+â”‚   â”‚       â”œâ”€â”€ Rocks.tsx
+â”‚   â”‚       â”œâ”€â”€ Bushes.tsx
+â”‚   â”‚       â””â”€â”€ Stump.tsx
+â”‚   â”‚
+â”‚   â”œâ”€â”€ effects/
+â”‚   â”‚   â”œâ”€â”€ FireEffect.tsx
+â”‚   â”‚   â”œâ”€â”€ RainEffect.tsx
+â”‚   â”‚   â”œâ”€â”€ DayNightEffect.tsx
+â”‚   â”‚   â””â”€â”€ LightingEffect.tsx
+â”‚   â”‚
+â”‚   â”œâ”€â”€ components/
+â”‚   â”‚   â”œâ”€â”€ Header.tsx
+â”‚   â”‚   â”œâ”€â”€ EnvironmentControls.tsx
+â”‚   â”‚   â”œâ”€â”€ ObjectPanel.tsx
+â”‚   â”‚   â””â”€â”€ LoadingScreen.tsx
+â”‚   â”‚
+â”‚   â”œâ”€â”€ stores/
+â”‚   â”‚   â””â”€â”€ campingStore.ts
+â”‚   â”‚
+â”‚   â”œâ”€â”€ lib/
+â”‚   â”‚   â”œâ”€â”€ scene-config.ts
+â”‚   â”‚   â””â”€â”€ asset-config.ts
+â”‚   â”‚
+â”‚   â”œâ”€â”€ styles/
+â”‚   â”‚   â””â”€â”€ globals.css
+â”‚   â”‚
+â”‚   â””â”€â”€ main.tsx
+â”‚
+â”œâ”€â”€ index.html
+â”œâ”€â”€ vite.config.ts
+â”œâ”€â”€ tsconfig.json
+â”œâ”€â”€ package.json
+â””â”€â”€ README.md
 ```
 
 ---
@@ -868,16 +868,16 @@ Initial:
 
 ```text
 /
-└── /camping
+â””â”€â”€ /camping
 ```
 
 Future:
 
 ```text
 /
-├── /camping
-├── /about
-└── /experiments
+â”œâ”€â”€ /camping
+â”œâ”€â”€ /about
+â””â”€â”€ /experiments
 ```
 
 Example:
@@ -913,7 +913,7 @@ Minimum: 30 FPS
 Mobile:
 
 ```text
-Target: 30–60 FPS
+Target: 30â€“60 FPS
 ```
 
 ## Optimization Priorities
@@ -942,11 +942,11 @@ Before production:
 
 ```text
 Blender
- ↓
+ â†“
 GLB
- ↓
+ â†“
 Optimize
- ↓
+ â†“
 Web
 ```
 
@@ -979,13 +979,13 @@ Potential architecture:
 
 ```text
 pine-tree.glb
-      ↓
+      â†“
    Instance
-      ├── tree 1
-      ├── tree 2
-      ├── tree 3
-      ├── tree 4
-      └── tree 5
+      â”œâ”€â”€ tree 1
+      â”œâ”€â”€ tree 2
+      â”œâ”€â”€ tree 3
+      â”œâ”€â”€ tree 4
+      â””â”€â”€ tree 5
 ```
 
 Instancing should be introduced only where it provides measurable benefit.
@@ -1013,16 +1013,16 @@ Exact values should be adjusted based on performance testing.
 Supported desktop sizes:
 
 ```text
-1920 × 1080
-1440 × 900
-1280 × 720
+1920 Ã— 1080
+1440 Ã— 900
+1280 Ã— 720
 ```
 
 Supported mobile sizes:
 
 ```text
-390 × 844
-412 × 915
+390 Ã— 844
+412 Ã— 915
 ```
 
 Mobile interaction should support:
@@ -1153,44 +1153,44 @@ work correctly when accessed directly.
 MVP MUST contain:
 
 ```text
-✓ React + Vite
-✓ React Router
-✓ TypeScript
-✓ React Three Fiber
-✓ Three.js
-✓ Drei
-✓ Zustand
-✓ Tailwind CSS
+âœ“ React + Vite
+âœ“ React Router
+âœ“ TypeScript
+âœ“ React Three Fiber
+âœ“ Three.js
+âœ“ Drei
+âœ“ Zustand
+âœ“ Tailwind CSS
 
-✓ Ground
-✓ Pine Trees
-✓ Tent
-✓ Campfire
-✓ Logs
-✓ Rocks
-✓ Bushes
-✓ Lantern
+âœ“ Ground
+âœ“ Pine Trees
+âœ“ Tent
+âœ“ Campfire
+âœ“ Logs
+âœ“ Rocks
+âœ“ Bushes
+âœ“ Lantern
 
-✓ Isometric camera
-✓ OrbitControls
-✓ GLB loading
-✓ Object hover
-✓ Object selection
-✓ Object information panel
+âœ“ Isometric camera
+âœ“ OrbitControls
+âœ“ GLB loading
+âœ“ Object hover
+âœ“ Object selection
+âœ“ Object information panel
 
-✓ Campfire ON/OFF
-✓ Campfire animation
-✓ Campfire lighting
+âœ“ Campfire ON/OFF
+âœ“ Campfire animation
+âœ“ Campfire lighting
 
-✓ Lantern ON/OFF
+âœ“ Lantern ON/OFF
 
-✓ Day
-✓ Sunset
-✓ Night
+âœ“ Day
+âœ“ Sunset
+âœ“ Night
 
-✓ Loading state
-✓ Responsive UI
-✓ Basic performance optimization
+âœ“ Loading state
+âœ“ Responsive UI
+âœ“ Basic performance optimization
 ```
 
 ---
@@ -1200,17 +1200,17 @@ MVP MUST contain:
 After MVP:
 
 ```text
-□ Rain particles
-□ Fog
-□ Stars
-□ Moon
-□ Improved day/night transitions
-□ Tree wind animation
-□ Better object highlighting
-□ Ambient audio
-□ Campfire audio
-□ Rain audio
-□ Screenshot/photo mode
+â–¡ Rain particles
+â–¡ Fog
+â–¡ Stars
+â–¡ Moon
+â–¡ Improved day/night transitions
+â–¡ Tree wind animation
+â–¡ Better object highlighting
+â–¡ Ambient audio
+â–¡ Campfire audio
+â–¡ Rain audio
+â–¡ Screenshot/photo mode
 ```
 
 ---
@@ -1220,134 +1220,134 @@ After MVP:
 Potential future expansion:
 
 ```text
-□ Character
-□ Character movement
-□ Interactive tent
-□ Interactive backpack
-□ Dynamic weather
-□ Snow
-□ Wind
-□ Multiple camping locations
-□ Scene presets
-□ Photo mode
-□ More environmental props
+â–¡ Character
+â–¡ Character movement
+â–¡ Interactive tent
+â–¡ Interactive backpack
+â–¡ Dynamic weather
+â–¡ Snow
+â–¡ Wind
+â–¡ Multiple camping locations
+â–¡ Scene presets
+â–¡ Photo mode
+â–¡ More environmental props
 ```
 
 ---
 
 # 43. Development Phases
 
-## Phase 1 — Project Initialization
+## Phase 1 â€” Project Initialization
 
 ```text
-□ Initialize Vite
-□ Configure React
-□ Configure TypeScript
-□ Install React Router
-□ Install Three.js
-□ Install React Three Fiber
-□ Install Drei
-□ Install Zustand
-□ Configure Tailwind
+â–¡ Initialize Vite
+â–¡ Configure React
+â–¡ Configure TypeScript
+â–¡ Install React Router
+â–¡ Install Three.js
+â–¡ Install React Three Fiber
+â–¡ Install Drei
+â–¡ Install Zustand
+â–¡ Configure Tailwind
 ```
 
-## Phase 2 — Basic 3D Scene
+## Phase 2 â€” Basic 3D Scene
 
 ```text
-□ Create Canvas
-□ Configure camera
-□ Configure OrbitControls
-□ Add basic lighting
-□ Load ground
-□ Render initial scene
+â–¡ Create Canvas
+â–¡ Configure camera
+â–¡ Configure OrbitControls
+â–¡ Add basic lighting
+â–¡ Load ground
+â–¡ Render initial scene
 ```
 
-## Phase 3 — Asset Integration
+## Phase 3 â€” Asset Integration
 
 ```text
-□ Ground
-□ Pine tree
-□ Tent
-□ Campfire
-□ Logs
-□ Rocks
-□ Bush
-□ Lantern
+â–¡ Ground
+â–¡ Pine tree
+â–¡ Tent
+â–¡ Campfire
+â–¡ Logs
+â–¡ Rocks
+â–¡ Bush
+â–¡ Lantern
 ```
 
-## Phase 4 — Scene Composition
+## Phase 4 â€” Scene Composition
 
 ```text
-□ Position tent
-□ Position campfire
-□ Position lantern
-□ Scatter pine trees
-□ Scatter rocks
-□ Scatter bushes
-□ Adjust composition
+â–¡ Position tent
+â–¡ Position campfire
+â–¡ Position lantern
+â–¡ Scatter pine trees
+â–¡ Scatter rocks
+â–¡ Scatter bushes
+â–¡ Adjust composition
 ```
 
-## Phase 5 — Interaction
+## Phase 5 â€” Interaction
 
 ```text
-□ Hover detection
-□ Object highlighting
-□ Object selection
-□ Object panel
-□ Campfire toggle
-□ Lantern toggle
+â–¡ Hover detection
+â–¡ Object highlighting
+â–¡ Object selection
+â–¡ Object panel
+â–¡ Campfire toggle
+â–¡ Lantern toggle
 ```
 
-## Phase 6 — Animation
+## Phase 6 â€” Animation
 
 ```text
-□ Fire animation
-□ Fire light flickering
-□ Lantern glow
-□ Environment transitions
+â–¡ Fire animation
+â–¡ Fire light flickering
+â–¡ Lantern glow
+â–¡ Environment transitions
 ```
 
-## Phase 7 — Environment
+## Phase 7 â€” Environment
 
 ```text
-□ Day
-□ Sunset
-□ Night
-□ Stars
-□ Moon
+â–¡ Day
+â–¡ Sunset
+â–¡ Night
+â–¡ Stars
+â–¡ Moon
 ```
 
-## Phase 8 — Weather
+## Phase 8 â€” Weather
 
 ```text
-□ Rain particles
-□ Rain toggle
-□ Fog
-□ Lighting adjustment
+â–¡ Rain particles
+â–¡ Rain toggle
+â–¡ Fog
+â–¡ Lighting adjustment
 ```
 
-## Phase 9 — Performance
+## Phase 9 â€” Performance
 
 ```text
-□ GLB optimization
-□ Texture optimization
-□ Object reuse
-□ Instancing where useful
-□ DPR optimization
-□ Shadow optimization
-□ FPS testing
+â–¡ GLB optimization
+â–¡ Texture optimization
+â–¡ Object reuse
+â–¡ Instancing where useful
+â–¡ DPR optimization
+â–¡ Shadow optimization
+â–¡ FPS testing
 ```
 
-## Phase 10 — Polish & Deployment
+## Phase 10 â€” Polish & Deployment
 
 ```text
-□ Loading screen
-□ Responsive UI
-□ Mobile testing
-□ Browser testing
-□ Production build
-□ Deploy
-□ Performance audit
+â–¡ Loading screen
+â–¡ Responsive UI
+â–¡ Mobile testing
+â–¡ Browser testing
+â–¡ Production build
+â–¡ Deploy
+â–¡ Performance audit
 ```
 
 ---
@@ -1429,35 +1429,35 @@ Cozy Camping should feel like a **small interactive digital diorama**, not a con
 The experience should immediately present:
 
 ```text
-                 🌲        🌲
+                 ðŸŒ²        ðŸŒ²
 
-                       ⛺
+                       â›º
 
-                            🔥
-                          🪵🪵
+                            ðŸ”¥
+                          ðŸªµðŸªµ
 
-            🌿                     🪨
+            ðŸŒ¿                     ðŸª¨
 
-                 🌲        🌲
+                 ðŸŒ²        ðŸŒ²
 ```
 
 The technology should remain intentionally simple:
 
 ```text
 Vite
- ↓
+ â†“
 React
- ↓
+ â†“
 React Router
- ↓
+ â†“
 React Three Fiber
- ↓
+ â†“
 Three.js
- ↓
+ â†“
 WebGL
- ↓
+ â†“
 GLB
- ↓
+ â†“
 Blender
 ```
 

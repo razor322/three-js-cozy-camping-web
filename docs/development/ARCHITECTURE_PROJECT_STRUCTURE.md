@@ -6,7 +6,7 @@
 **Stack:** React + Vite + React Router + React Three Fiber + Three.js  
 **State:** Zustand  
 **Styling:** Tailwind CSS  
-**3D Assets:** Blender → GLB
+**3D Assets:** Blender â†’ GLB
 
 ---
 
@@ -28,49 +28,49 @@ High-level architecture:
 
 ```text
                          Browser
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │     Vite      │
-                    │ Build / Dev   │
-                    └───────┬───────┘
-                            │
-                            ▼
-                    ┌───────────────┐
-                    │     React     │
-                    │      SPA      │
-                    └───────┬───────┘
-                            │
-                ┌───────────┼───────────┐
-                │           │           │
-                ▼           ▼           ▼
+                            â”‚
+                            â–¼
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚     Vite      â”‚
+                    â”‚ Build / Dev   â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+                            â”‚
+                            â–¼
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚     React     â”‚
+                    â”‚      SPA      â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜
+                            â”‚
+                â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                â”‚           â”‚           â”‚
+                â–¼           â–¼           â–¼
            React Router   UI Layer   Zustand
-                │           │           │
-                │           │           │
-                └───────────┼───────────┘
-                            │
-                            ▼
-                  ┌──────────────────┐
-                  │ Camping Feature  │
-                  └────────┬─────────┘
-                           │
-                ┌──────────┴──────────┐
-                │                     │
-                ▼                     ▼
+                â”‚           â”‚           â”‚
+                â”‚           â”‚           â”‚
+                â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                            â”‚
+                            â–¼
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚ Camping Feature  â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                           â”‚
+                â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                â”‚                     â”‚
+                â–¼                     â–¼
           Scene Layer            Effects Layer
-                │                     │
-                ▼                     ▼
+                â”‚                     â”‚
+                â–¼                     â–¼
        React Three Fiber          Three.js
-                │                     │
-                └──────────┬──────────┘
-                           │
-                           ▼
+                â”‚                     â”‚
+                â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                           â”‚
+                           â–¼
                          WebGL
-                           │
-                           ▼
+                           â”‚
+                           â–¼
                        GLB Assets
-                           ▲
-                           │
+                           â–²
+                           â”‚
                          Blender
 ```
 
@@ -94,13 +94,13 @@ Runtime architecture:
 
 ```text
 Browser
-  ↓
+  â†“
 React
-  ↓
+  â†“
 React Three Fiber
-  ↓
+  â†“
 Three.js
-  ↓
+  â†“
 WebGL
 ```
 
@@ -122,9 +122,9 @@ Future features could become:
 
 ```text
 features/
-├── camping/
-├── gallery/
-└── experiments/
+â”œâ”€â”€ camping/
+â”œâ”€â”€ gallery/
+â””â”€â”€ experiments/
 ```
 
 ---
@@ -135,16 +135,16 @@ The React UI and Three.js scene should remain logically separated.
 
 ```text
               Camping Page
-                    │
-          ┌─────────┴─────────┐
-          │                   │
-          ▼                   ▼
+                    â”‚
+          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+          â”‚                   â”‚
+          â–¼                   â–¼
        2D UI              3D Scene
-          │                   │
+          â”‚                   â”‚
       React DOM          R3F Canvas
-          │                   │
-          └─────────┬─────────┘
-                    │
+          â”‚                   â”‚
+          â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
                  Zustand
 ```
 
@@ -154,16 +154,16 @@ Example:
 
 ```text
 User clicks "Night"
-       │
-       ▼
+       â”‚
+       â–¼
 EnvironmentControls
-       │
-       ▼
+       â”‚
+       â–¼
 campingStore.setTimeMode("night")
-       │
-       ├──────────────► UI updates
-       │
-       └──────────────► Scene lighting updates
+       â”‚
+       â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º UI updates
+       â”‚
+       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º Scene lighting updates
 ```
 
 ---
@@ -194,10 +194,10 @@ Responsible for:
 
 ```text
 src/
-├── main.tsx
-└── app/
-    ├── App.tsx
-    └── routes.tsx
+â”œâ”€â”€ main.tsx
+â””â”€â”€ app/
+    â”œâ”€â”€ App.tsx
+    â””â”€â”€ routes.tsx
 ```
 
 ### `main.tsx`
@@ -206,9 +206,9 @@ Entry point:
 
 ```text
 main.tsx
-    ↓
+    â†“
 ReactDOM
-    ↓
+    â†“
 App
 ```
 
@@ -225,16 +225,16 @@ Responsible for:
 
 ```text
 /
-└── /camping
+â””â”€â”€ /camping
 ```
 
 Future:
 
 ```text
 /
-├── /camping
-├── /about
-└── /experiments
+â”œâ”€â”€ /camping
+â”œâ”€â”€ /about
+â””â”€â”€ /experiments
 ```
 
 ---
@@ -253,13 +253,13 @@ Recommended structure:
 
 ```text
 features/
-└── camping/
-    ├── pages/
-    ├── components/
-    ├── scene/
-    ├── effects/
-    ├── config/
-    └── types/
+â””â”€â”€ camping/
+    â”œâ”€â”€ pages/
+    â”œâ”€â”€ components/
+    â”œâ”€â”€ scene/
+    â”œâ”€â”€ effects/
+    â”œâ”€â”€ config/
+    â””â”€â”€ types/
 ```
 
 This means the entire camping experience can eventually be moved or expanded without affecting unrelated features.
@@ -270,7 +270,7 @@ This means the entire camping experience can eventually be moved or expanded wit
 
 ```text
 features/camping/pages/
-└── CampingPage.tsx
+â””â”€â”€ CampingPage.tsx
 ```
 
 `CampingPage` acts as the composition root for the camping experience.
@@ -303,10 +303,10 @@ Recommended:
 
 ```text
 components/
-├── Header.tsx
-├── EnvironmentControls.tsx
-├── ObjectPanel.tsx
-└── LoadingScreen.tsx
+â”œâ”€â”€ Header.tsx
+â”œâ”€â”€ EnvironmentControls.tsx
+â”œâ”€â”€ ObjectPanel.tsx
+â””â”€â”€ LoadingScreen.tsx
 ```
 
 Responsibilities:
@@ -339,7 +339,7 @@ Example:
 
 ```text
 Campfire
-─────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Status: Burning
 
 [ Turn Off ]
@@ -363,15 +363,15 @@ Recommended structure:
 
 ```text
 scene/
-├── CampingScene.tsx
-├── Ground.tsx
-├── Forest.tsx
-├── Tent.tsx
-├── Campfire.tsx
-├── Lantern.tsx
-├── Logs.tsx
-├── Rocks.tsx
-└── Bushes.tsx
+â”œâ”€â”€ CampingScene.tsx
+â”œâ”€â”€ Ground.tsx
+â”œâ”€â”€ Forest.tsx
+â”œâ”€â”€ Tent.tsx
+â”œâ”€â”€ Campfire.tsx
+â”œâ”€â”€ Lantern.tsx
+â”œâ”€â”€ Stump.tsx
+â”œâ”€â”€ Rocks.tsx
+â””â”€â”€ Bushes.tsx
 ```
 
 ---
@@ -393,30 +393,30 @@ Conceptual structure:
 
 ```text
 CampingScene
-│
-├── Camera
-├── OrbitControls
-│
-├── Environment
-│
-├── Ground
-│
-├── Forest
-│   ├── PineTree
-│   ├── PineTree
-│   └── PineTree
-│
-├── Tent
-│
-├── Campfire
-│
-├── Logs
-│
-├── Rocks
-│
-├── Bushes
-│
-└── Lantern
+â”‚
+â”œâ”€â”€ Camera
+â”œâ”€â”€ OrbitControls
+â”‚
+â”œâ”€â”€ Environment
+â”‚
+â”œâ”€â”€ Ground
+â”‚
+â”œâ”€â”€ Forest
+â”‚   â”œâ”€â”€ PineTree
+â”‚   â”œâ”€â”€ PineTree
+â”‚   â””â”€â”€ PineTree
+â”‚
+â”œâ”€â”€ Tent
+â”‚
+â”œâ”€â”€ Campfire
+â”‚
+â”œâ”€â”€ Logs
+â”‚
+â”œâ”€â”€ Rocks
+â”‚
+â”œâ”€â”€ Bushes
+â”‚
+â””â”€â”€ Lantern
 ```
 
 The component should focus on **composition**, not implementation details.
@@ -452,7 +452,7 @@ Environment-specific logic:
 
 ```text
 scene/
-└── Environment.tsx
+â””â”€â”€ Environment.tsx
 ```
 
 Responsible for:
@@ -466,16 +466,16 @@ The environment reads the current state:
 
 ```text
 Zustand
-   │
-   ▼
+   â”‚
+   â–¼
 timeMode
-   │
-   ▼
+   â”‚
+   â–¼
 Environment
-   │
-   ├── day
-   ├── sunset
-   └── night
+   â”‚
+   â”œâ”€â”€ day
+   â”œâ”€â”€ sunset
+   â””â”€â”€ night
 ```
 
 ---
@@ -492,10 +492,10 @@ Structure:
 
 ```text
 effects/
-├── FireEffect.tsx
-├── RainEffect.tsx
-├── DayNightEffect.tsx
-└── LightingEffect.tsx
+â”œâ”€â”€ FireEffect.tsx
+â”œâ”€â”€ RainEffect.tsx
+â”œâ”€â”€ DayNightEffect.tsx
+â””â”€â”€ LightingEffect.tsx
 ```
 
 ---
@@ -516,11 +516,11 @@ Example architecture:
 
 ```text
 Campfire
-   │
-   └── FireEffect
-          ├── scale animation
-          ├── rotation animation
-          └── light flicker
+   â”‚
+   â””â”€â”€ FireEffect
+          â”œâ”€â”€ scale animation
+          â”œâ”€â”€ rotation animation
+          â””â”€â”€ light flicker
 ```
 
 Animation should use `useFrame`.
@@ -540,12 +540,12 @@ Architecture:
 
 ```text
 RainEffect
-    │
-    └── Instanced / Particle system
-            │
-            ├── position
-            ├── velocity
-            └── reset
+    â”‚
+    â””â”€â”€ Instanced / Particle system
+            â”‚
+            â”œâ”€â”€ position
+            â”œâ”€â”€ velocity
+            â””â”€â”€ reset
 ```
 
 Rain should NOT be represented by hundreds of React components.
@@ -579,19 +579,19 @@ Global state:
 
 ```text
 src/features/camping/store/
-└── campingStore.ts
+â””â”€â”€ campingStore.ts
 ```
 
 Recommended:
 
 ```text
 campingStore
-│
-├── timeMode
-├── weather
-├── campfireActive
-├── lanternActive
-└── selectedObject
+â”‚
+â”œâ”€â”€ timeMode
+â”œâ”€â”€ weather
+â”œâ”€â”€ campfireActive
+â”œâ”€â”€ lanternActive
+â””â”€â”€ selectedObject
 ```
 
 Example:
@@ -610,23 +610,23 @@ Example: changing time.
 
 ```text
 User
- │
- ▼
+ â”‚
+ â–¼
 EnvironmentControls
- │
- ▼
+ â”‚
+ â–¼
 campingStore
- │
- │ setTimeMode("night")
- │
- ├───────────────┐
- ▼               ▼
+ â”‚
+ â”‚ setTimeMode("night")
+ â”‚
+ â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+ â–¼               â–¼
 Environment    UI
- │
- ▼
+ â”‚
+ â–¼
 Lighting
- │
- ▼
+ â”‚
+ â–¼
 Three.js
 ```
 
@@ -634,18 +634,18 @@ Example: campfire interaction.
 
 ```text
 User clicks Campfire
-        │
-        ▼
+        â”‚
+        â–¼
 Campfire.tsx
-        │
-        ▼
+        â”‚
+        â–¼
 campingStore.toggleCampfire()
-        │
-        ├──────────────► ObjectPanel
-        │
-        └──────────────► FireEffect
-                              │
-                              ▼
+        â”‚
+        â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º ObjectPanel
+        â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º FireEffect
+                              â”‚
+                              â–¼
                          PointLight
 ```
 
@@ -661,14 +661,14 @@ public/models/
 
 ```text
 models/
-├── ground.glb
-├── pine-tree.glb
-├── tent.glb
-├── campfire.glb
-├── logs.glb
-├── rocks.glb
-├── bush.glb
-└── lantern.glb
+â”œâ”€â”€ ground.glb
+â”œâ”€â”€ pine-tree.glb
+â”œâ”€â”€ tent.glb
+â”œâ”€â”€ campfire.glb
+â”œâ”€â”€ stump.glb
+â”œâ”€â”€ rocks.glb
+â”œâ”€â”€ bush.glb
+â””â”€â”€ lantern.glb
 ```
 
 Assets are treated as static application resources.
@@ -683,7 +683,7 @@ Create:
 
 ```text
 features/camping/config/
-└── asset-config.ts
+â””â”€â”€ asset-config.ts
 ```
 
 Example:
@@ -694,7 +694,6 @@ export const CAMPING_ASSETS = {
   pineTree: "/models/pine-tree.glb",
   tent: "/models/tent.glb",
   campfire: "/models/campfire.glb",
-  logs: "/models/logs.glb",
   rocks: "/models/rocks.glb",
   bush: "/models/bush.glb",
   lantern: "/models/lantern.glb",
@@ -717,7 +716,7 @@ Create:
 
 ```text
 features/camping/config/
-└── scene-config.ts
+â””â”€â”€ scene-config.ts
 ```
 
 Contains:
@@ -757,7 +756,7 @@ Feature-specific types:
 
 ```text
 features/camping/types/
-└── camping.ts
+â””â”€â”€ camping.ts
 ```
 
 Example:
@@ -789,10 +788,10 @@ Potential structure:
 
 ```text
 shared/
-├── components/
-├── hooks/
-├── utils/
-└── types/
+â”œâ”€â”€ components/
+â”œâ”€â”€ hooks/
+â”œâ”€â”€ utils/
+â””â”€â”€ types/
 ```
 
 Do NOT create a large shared abstraction prematurely.
@@ -807,79 +806,79 @@ The recommended final structure is:
 
 ```text
 cozy-camping/
-│
-├── public/
-│   └── models/
-│       ├── ground.glb
-│       ├── pine-tree.glb
-│       ├── tent.glb
-│       ├── campfire.glb
-│       ├── logs.glb
-│       ├── rocks.glb
-│       ├── bush.glb
-│       └── lantern.glb
-│
-├── src/
-│   │
-│   ├── app/
-│   │   ├── App.tsx
-│   │   └── routes.tsx
-│   │
-│   ├── features/
-│   │   └── camping/
-│   │       │
-│   │       ├── pages/
-│   │       │   └── CampingPage.tsx
-│   │       │
-│   │       ├── components/
-│   │       │   ├── Header.tsx
-│   │       │   ├── EnvironmentControls.tsx
-│   │       │   ├── ObjectPanel.tsx
-│   │       │   └── LoadingScreen.tsx
-│   │       │
-│   │       ├── scene/
-│   │       │   ├── CampingScene.tsx
-│   │       │   ├── Ground.tsx
-│   │       │   ├── Forest.tsx
-│   │       │   ├── Tent.tsx
-│   │       │   ├── Campfire.tsx
-│   │       │   ├── Lantern.tsx
-│   │       │   ├── Logs.tsx
-│   │       │   ├── Rocks.tsx
-│   │       │   └── Bushes.tsx
-│   │       │
-│   │       ├── effects/
-│   │       │   ├── FireEffect.tsx
-│   │       │   ├── RainEffect.tsx
-│   │       │   ├── DayNightEffect.tsx
-│   │       │   └── LightingEffect.tsx
-│   │       │
-│   │       ├── store/
-│   │       │   └── campingStore.ts
-│   │       │
-│   │       ├── config/
-│   │       │   ├── asset-config.ts
-│   │       │   └── scene-config.ts
-│   │       │
-│   │       └── types/
-│   │           └── camping.ts
-│   │
-│   ├── shared/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── utils/
-│   │   └── types/
-│   │
-│   ├── styles/
-│   │   └── globals.css
-│   │
-│   └── main.tsx
-│
-├── index.html
-├── vite.config.ts
-├── tsconfig.json
-├── package.json
-└── README.md
+â”‚
+â”œâ”€â”€ public/
+â”‚   â””â”€â”€ models/
+â”‚       â”œâ”€â”€ ground.glb
+â”‚       â”œâ”€â”€ pine-tree.glb
+â”‚       â”œâ”€â”€ tent.glb
+â”‚       â”œâ”€â”€ campfire.glb
+â”‚       â”œâ”€â”€ stump.glb
+â”‚       â”œâ”€â”€ rocks.glb
+â”‚       â”œâ”€â”€ bush.glb
+â”‚       â””â”€â”€ lantern.glb
+â”‚
+â”œâ”€â”€ src/
+â”‚   â”‚
+â”‚   â”œâ”€â”€ app/
+â”‚   â”‚   â”œâ”€â”€ App.tsx
+â”‚   â”‚   â””â”€â”€ routes.tsx
+â”‚   â”‚
+â”‚   â”œâ”€â”€ features/
+â”‚   â”‚   â””â”€â”€ camping/
+â”‚   â”‚       â”‚
+â”‚   â”‚       â”œâ”€â”€ pages/
+â”‚   â”‚       â”‚   â””â”€â”€ CampingPage.tsx
+â”‚   â”‚       â”‚
+â”‚   â”‚       â”œâ”€â”€ components/
+â”‚   â”‚       â”‚   â”œâ”€â”€ Header.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ EnvironmentControls.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ ObjectPanel.tsx
+â”‚   â”‚       â”‚   â””â”€â”€ LoadingScreen.tsx
+â”‚   â”‚       â”‚
+â”‚   â”‚       â”œâ”€â”€ scene/
+â”‚   â”‚       â”‚   â”œâ”€â”€ CampingScene.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Ground.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Forest.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Tent.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Campfire.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Lantern.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Stump.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ Rocks.tsx
+â”‚   â”‚       â”‚   â””â”€â”€ Bushes.tsx
+â”‚   â”‚       â”‚
+â”‚   â”‚       â”œâ”€â”€ effects/
+â”‚   â”‚       â”‚   â”œâ”€â”€ FireEffect.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ RainEffect.tsx
+â”‚   â”‚       â”‚   â”œâ”€â”€ DayNightEffect.tsx
+â”‚   â”‚       â”‚   â””â”€â”€ LightingEffect.tsx
+â”‚   â”‚       â”‚
+â”‚   â”‚       â”œâ”€â”€ store/
+â”‚   â”‚       â”‚   â””â”€â”€ campingStore.ts
+â”‚   â”‚       â”‚
+â”‚   â”‚       â”œâ”€â”€ config/
+â”‚   â”‚       â”‚   â”œâ”€â”€ asset-config.ts
+â”‚   â”‚       â”‚   â””â”€â”€ scene-config.ts
+â”‚   â”‚       â”‚
+â”‚   â”‚       â””â”€â”€ types/
+â”‚   â”‚           â””â”€â”€ camping.ts
+â”‚   â”‚
+â”‚   â”œâ”€â”€ shared/
+â”‚   â”‚   â”œâ”€â”€ components/
+â”‚   â”‚   â”œâ”€â”€ hooks/
+â”‚   â”‚   â”œâ”€â”€ utils/
+â”‚   â”‚   â””â”€â”€ types/
+â”‚   â”‚
+â”‚   â”œâ”€â”€ styles/
+â”‚   â”‚   â””â”€â”€ globals.css
+â”‚   â”‚
+â”‚   â””â”€â”€ main.tsx
+â”‚
+â”œâ”€â”€ index.html
+â”œâ”€â”€ vite.config.ts
+â”œâ”€â”€ tsconfig.json
+â”œâ”€â”€ package.json
+â””â”€â”€ README.md
 ```
 
 ---
@@ -892,11 +891,11 @@ Preferred:
 
 ```text
 app
- ↓
+ â†“
 features
- ↓
+ â†“
 scene / effects / components
- ↓
+ â†“
 config / types / store
 ```
 
@@ -906,9 +905,9 @@ Avoid:
 
 ```text
 scene
- ↓
+ â†“
 UI
- ↓
+ â†“
 scene
 ```
 
@@ -916,7 +915,7 @@ Avoid circular dependencies.
 
 ---
 
-# 25. UI ↔ 3D Communication
+# 25. UI â†” 3D Communication
 
 UI and 3D objects should communicate through Zustand rather than directly referencing each other.
 
@@ -924,7 +923,7 @@ Bad:
 
 ```text
 ObjectPanel
-   ↓
+   â†“
 Campfire component reference
 ```
 
@@ -932,9 +931,9 @@ Preferred:
 
 ```text
 ObjectPanel
-   ↓
+   â†“
 Zustand
-   ↓
+   â†“
 Campfire
 ```
 
@@ -948,11 +947,11 @@ Each 3D component should follow this responsibility model:
 
 ```text
 Component
-│
-├── Load asset
-├── Render asset
-├── Local visual behavior
-└── Interaction
+â”‚
+â”œâ”€â”€ Load asset
+â”œâ”€â”€ Render asset
+â”œâ”€â”€ Local visual behavior
+â””â”€â”€ Interaction
 ```
 
 Avoid putting:
@@ -974,7 +973,7 @@ Example:
 
 ```text
 Campfire.tsx
-    └── FireEffect
+    â””â”€â”€ FireEffect
 ```
 
 Global environmental animation should remain in:
@@ -1003,11 +1002,11 @@ Bad:
 
 ```text
 useFrame
-  ↓
+  â†“
 setState()
-  ↓
+  â†“
 React render
-  ↓
+  â†“
 60 times/second
 ```
 
@@ -1015,9 +1014,9 @@ Preferred:
 
 ```text
 useFrame
-  ↓
+  â†“
 Three.js object mutation
-  ↓
+  â†“
 WebGL
 ```
 
@@ -1031,12 +1030,12 @@ The application uses:
 
 ```text
 React
-   │
-   └── DOM UI
+   â”‚
+   â””â”€â”€ DOM UI
 
 React Three Fiber
-   │
-   └── WebGL Canvas
+   â”‚
+   â””â”€â”€ WebGL Canvas
 ```
 
 The 3D canvas should be isolated from unnecessary React re-renders.
@@ -1071,17 +1070,17 @@ The project produces a static SPA.
 
 ```text
 Source
-  │
-  ▼
+  â”‚
+  â–¼
 Vite
-  │
-  ▼
+  â”‚
+  â–¼
 npm run build
-  │
-  ▼
+  â”‚
+  â–¼
 dist/
-  │
-  ▼
+  â”‚
+  â–¼
 Static Hosting
 ```
 
@@ -1105,30 +1104,30 @@ At runtime:
 
 ```text
                          Browser
-                            │
-                            ▼
+                            â”‚
+                            â–¼
                      React Application
-                            │
-                 ┌──────────┴──────────┐
-                 │                     │
-                 ▼                     ▼
+                            â”‚
+                 â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                 â”‚                     â”‚
+                 â–¼                     â–¼
               DOM UI              WebGL Canvas
-                 │                     │
-                 │                     ▼
-                 │              React Three Fiber
-                 │                     │
-                 │                     ▼
-                 │                  Three.js
-                 │                     │
-                 │                     ▼
-                 │                   WebGL
-                 │
-                 └──────────┐
-                            ▼
+                 â”‚                     â”‚
+                 â”‚                     â–¼
+                 â”‚              React Three Fiber
+                 â”‚                     â”‚
+                 â”‚                     â–¼
+                 â”‚                  Three.js
+                 â”‚                     â”‚
+                 â”‚                     â–¼
+                 â”‚                   WebGL
+                 â”‚
+                 â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                            â–¼
                          Zustand
-                            │
-                ┌───────────┼───────────┐
-                ▼           ▼           ▼
+                            â”‚
+                â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                â–¼           â–¼           â–¼
              UI State   Scene State   Effects
 ```
 
@@ -1140,25 +1139,25 @@ At runtime:
 
 ```text
 User
- ↓
+ â†“
 Click Campfire
- ↓
+ â†“
 Campfire.tsx
- ↓
+ â†“
 campingStore.selectObject("campfire")
- ↓
+ â†“
 ObjectPanel
- ↓
+ â†“
 User clicks "Turn Off"
- ↓
+ â†“
 campingStore.toggleCampfire()
- ↓
+ â†“
 Campfire state changes
- ↓
+ â†“
 FireEffect disabled
- ↓
+ â†“
 PointLight disabled
- ↓
+ â†“
 UI updated
 ```
 
@@ -1168,21 +1167,21 @@ UI updated
 
 ```text
 User
- ↓
+ â†“
 Click Night
- ↓
+ â†“
 EnvironmentControls
- ↓
+ â†“
 campingStore.setTimeMode("night")
- ↓
+ â†“
 DayNightEffect
- ↓
+ â†“
 Interpolate lighting
- ↓
+ â†“
 Environment
- ↓
+ â†“
 Three.js
- ↓
+ â†“
 WebGL
 ```
 
@@ -1194,13 +1193,13 @@ The architecture should remain:
 
 ```text
 Simple
-        ↓
+        â†“
 Predictable
-        ↓
+        â†“
 Modular
-        ↓
+        â†“
 Performant
-        ↓
+        â†“
 Easy to Extend
 ```
 
@@ -1216,21 +1215,21 @@ Example:
 
 ```text
 features/
-├── camping/
-├── gallery/
-├── experiments/
-└── portfolio/
+â”œâ”€â”€ camping/
+â”œâ”€â”€ gallery/
+â”œâ”€â”€ experiments/
+â””â”€â”€ portfolio/
 ```
 
 A future shared 3D system could also be introduced:
 
 ```text
 shared/
-└── three/
-    ├── Camera.tsx
-    ├── Lighting.tsx
-    ├── Model.tsx
-    └── Interaction.tsx
+â””â”€â”€ three/
+    â”œâ”€â”€ Camera.tsx
+    â”œâ”€â”€ Lighting.tsx
+    â”œâ”€â”€ Model.tsx
+    â””â”€â”€ Interaction.tsx
 ```
 
 This should only happen when multiple features actually require the same functionality.
@@ -1243,30 +1242,30 @@ The final architecture is intentionally lightweight:
 
 ```text
                     Vite
-                     │
+                     â”‚
                    React
-                     │
+                     â”‚
               React Router
-                     │
+                     â”‚
               Camping Feature
-                     │
-        ┌────────────┼────────────┐
-        │            │            │
+                     â”‚
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚            â”‚            â”‚
        UI          Scene        Effects
-        │            │            │
-        │        R3F / Three.js   │
-        │            │            │
-        └────────────┼────────────┘
-                     │
+        â”‚            â”‚            â”‚
+        â”‚        R3F / Three.js   â”‚
+        â”‚            â”‚            â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                     â”‚
                   Zustand
-                     │
-                     ▼
+                     â”‚
+                     â–¼
                   WebGL
-                     │
-                     ▼
+                     â”‚
+                     â–¼
                  GLB Assets
-                     ▲
-                     │
+                     â–²
+                     â”‚
                   Blender
 ```
 

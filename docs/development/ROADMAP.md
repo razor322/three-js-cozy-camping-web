@@ -1,4 +1,4 @@
-﻿# Roadmap â€” Cozy Camping 3D Web
+# Roadmap â€” Cozy Camping 3D Web
 
 **Version:** 1.0.0  
 **Stack:** React + Vite + React Router + React Three Fiber + Three.js + Zustand  
@@ -153,7 +153,7 @@ No final assets yet.
 â–¡ pine-tree.glb
 â–¡ tent.glb
 â–¡ campfire.glb
-â–¡ logs.glb
+â–¡ stump.glb
 â–¡ rocks.glb
 â–¡ bush.glb
 â–¡ lantern.glb
