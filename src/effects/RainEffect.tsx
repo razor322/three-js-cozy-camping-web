@@ -6,8 +6,12 @@ import { useCampingStore } from "../stores/campingStore.ts";
 const DESKTOP_COUNT = 800;
 const MOBILE_COUNT = 400;
 const DROP_LEN = 0.5;
-const SPEED = 6;
-const SLANT_X = 0.28;
+const SPEED = 6; // m/s downward
+const AREA = 10; // +/-10 in x/z covers the 18x18 terrain + margin
+const TERRAIN_TOP = 0.8; // flat ground top (validated: bbox 0..0.814)
+const RAIN_HEIGHT = 15; // spawn at top+15; column centre ~= top+7.5
+const WIND_X = 0.06; // spec allows x -0.05..0.1
+const WIND_Z = 0.03; // spec allows z 0..0.05
 
 // ponytail: one coarse-pointer check, no resize listener for a toggleable effect
 const COUNT =
@@ -43,12 +47,16 @@ export default function RainEffect() {
     if (!grp.current.visible) return;
     const time = performance.now() * 0.001;
     for (let i = 0; i < COUNT; i++) {
-      const x = positions[i * 2] + time * SLANT_X + (time * SPEED) % 20 * 0.02;
-      const z = positions[i * 2 + 1];
-      const y = -1 - ((time * SPEED + i) % 20);
+      const bx = positions[i * 2];
+      const bz = positions[i * 2 + 1];
+      // phase grows -> y decreases: velocity.y = -SPEED, wraps top->top+RAIN_HEIGHT
+      const phase = (time * SPEED + i * 1.37) % RAIN_HEIGHT;
+      const y = TERRAIN_TOP + RAIN_HEIGHT - phase; // y in [0.8, 15.8], never below terrain
+      const x = ((bx + WIND_X * time + AREA) % (AREA * 2)) - AREA; // wraps inside +/-10
+      const z = ((bz + WIND_Z * time + AREA) % (AREA * 2)) - AREA;
       dummy.position.set(x, y, z);
       dummy.scale.set(1, DROP_LEN, 1);
-      dummy.rotation.set(0, 0, -SLANT_X);
+      dummy.rotation.set(0, 0, 0); // vertical streaks, world-Y fall
       dummy.updateMatrixWorld();
       grp.current.setMatrixAt(i, dummy.matrixWorld);
     }
