@@ -18,6 +18,7 @@ dist-ssr
 # opencode work artifacts (SDD ledger, briefs, plans)
 .superpowers/
 docs/superpowers/
+docs/development/
 
 # Editor directories and files
 .vscode/*
