@@ -15,6 +15,10 @@ dist-ssr
 # CodeGraph index (user runs `codegraph init`)
 .codegraph/
 
+# opencode work artifacts (SDD ledger, briefs, plans)
+.superpowers/
+docs/superpowers/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
