@@ -6,7 +6,28 @@ Deterministic: fixed seeds -> byte-identical output every run.
 """
 import os, math, random, zlib, struct
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Under exec() from run.py, __file__ is the CALLER's, so it cannot be trusted: only
+# treat it as ours when it actually names this module. Grab the caller's ROOT before
+# the module-level assignment below clobbers it. Resolve order: explicit root ->
+# caller's ROOT -> our own __file__ -> $COZY_ROOT -> cwd.
+_EXEC_ROOT = globals().get('ROOT')
+_OWN_FILE = globals().get('__file__')
+_HERE = os.path.dirname(os.path.abspath(_OWN_FILE)) \
+        if _OWN_FILE and os.path.basename(_OWN_FILE) == 'textures.py' else None
+
+def _repo_root(root=None):
+    if root:
+        return root
+    if _EXEC_ROOT and os.path.isdir(_EXEC_ROOT):
+        return _EXEC_ROOT
+    if _HERE:
+        return os.path.dirname(_HERE)
+    env = os.environ.get('COZY_ROOT')
+    if env and os.path.isdir(env):
+        return env
+    return os.getcwd()
+
+ROOT = _repo_root()
 TEXTURE_DIR = os.path.join(ROOT, 'camping-assets', 'textures')
 
 # ---------------------------------------------------------------- png + noise
@@ -179,7 +200,10 @@ TEXTURE_SPECS = {
   'metal_albedo':   (256, metal_albedo),   'metal_rough':    (256, metal_rough),
 }
 
-def generate_textures():
+def generate_textures(root=None):
+    global ROOT, TEXTURE_DIR
+    ROOT = _repo_root(root)
+    TEXTURE_DIR = os.path.join(ROOT, 'camping-assets', 'textures')
     os.makedirs(TEXTURE_DIR, exist_ok=True)
     for name, (size, painter) in TEXTURE_SPECS.items():
         buf = bytearray(size * size * 3)
