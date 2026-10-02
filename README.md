@@ -70,10 +70,6 @@ Blender (flat-shade Principled, origin base, applied transforms)
 
 Named nodes the code depends on: `Campfire_Flame_Outer/Inner`, `Lantern_Glow`, `Lantern_Pivot`.
 
-## Roadmap status
-
-Phase 0-13 done (scaffold -> scene -> assets -> composition -> interaction -> fire/lantern -> day/night -> rain -> UI -> perf -> responsive -> testing -> prod build). Remaining: Phase 14 deploy (Vercel/Cloudflare, SPA fallback to index.html) + Phase 15 polish. Details in `docs/development/ROADMAP.md`.
-
 ## Deploy
 
 Static SPA — output `dist/`. Host needs SPA fallback (`/camping` -> `index.html`).
