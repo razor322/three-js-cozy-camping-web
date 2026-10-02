@@ -21,9 +21,11 @@ HEX = {
 EMISSIVE = {'M_FlameOuter','M_FlameMid','M_FlameInner','M_FlameBase','M_LanternLight'}
 ROUGH = {'M_LanternMetal':0.6,'M_LanternGlass':0.4}
 GLASSY = {'M_LanternGlass'}
-# Maps are near-neutral detail, so one map serves several materials; the HEX
-# palette would double-darken through the glTF factor, so textured materials
-# keep Base Color white and the texture owns all detail.
+# Maps are near-neutral detail (~230/255), so one map serves several materials.
+# The palette still rides Base Color: a direct Image Texture -> Base Color link
+# makes the glTF exporter DROP baseColorFactor (texture then multiplies against
+# white and the HEX is gone), so the colour must reach Base Color through a
+# ShaderNodeMix multiply -- the exporter then reads the constant as the factor.
 TEX_ALBEDO = {'M_Grass':'grass_albedo','M_Soil':'soil_albedo','M_TentOrange':'canvas_albedo',
   'M_FoliageDark':'foliage_albedo','M_FoliageLight':'foliage_albedo','M_BushMid':'foliage_albedo',
   'M_Stone':'stone_albedo','M_StoneWarm':'stone_albedo','M_Bark':'wood_albedo','M_LogEnd':'wood_albedo',
@@ -57,8 +59,20 @@ def get_mat(name):
     albedo = TEX_ALBEDO.get(name)
     rough = TEX_ROUGH.get(name)
     if albedo:
-        _tex_link(nt, bsdf, albedo, False, 'Base Color', (-360, 200))
-        bsdf.inputs['Base Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+        t = nt.nodes.new('ShaderNodeTexImage')
+        t.image = _tex_image(albedo, False)
+        t.location = (-700, 260)
+        rgb = nt.nodes.new('ShaderNodeRGB')
+        rgb.outputs[0].default_value = hexrgb(HEX[name])
+        rgb.location = (-700, 20)
+        mix = nt.nodes.new('ShaderNodeMix')
+        mix.data_type = 'RGBA'
+        mix.blend_type = 'MULTIPLY'
+        mix.location = (-440, 200)
+        nt.links.new(t.outputs['Color'], mix.inputs[6])      # A
+        nt.links.new(rgb.outputs[0], mix.inputs[7])          # B
+        mix.inputs[0].default_value = 1.0                     # Factor
+        nt.links.new(mix.outputs[2], bsdf.inputs['Base Color'])  # Result (RGBA)
     else:
         bsdf.inputs['Base Color'].default_value = hexrgb(HEX[name])
     if rough:
