@@ -5,7 +5,7 @@ Run: python tools/validate_glb.py   (from any cwd)
 Per primitive: TEXCOORD_0 present, COLOR_0 absent, UV range inside [0, 1], and
 unless the material is whitelisted as untextured, baseColorTexture plus the
 packed metallicRoughnessTexture.
-Per file: len(images) > 0 for the 7 textured assets, plus the total-size budget.
+Per file: len(images) > 0 for all 8 (every GLB embeds its maps), plus the total-size budget.
 Ground additionally: X/Z +/-9 and both surfaces inside the top-slab z range.
 
 Note: Blender's glTF exporter writes accessor min/max only for POSITION, so every
@@ -20,7 +20,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'public', 'models')
 
-TEXTURED = ('ground', 'tent', 'campfire', 'rocks', 'pine-tree', 'bush', 'lantern')
+TEXTURED = ('ground', 'tent', 'campfire', 'rocks', 'pine-tree', 'bush', 'lantern', 'stump')
 # Materials that must carry both maps -- the TEX_ALBEDO keys in
 # blender_build/common.py. Anything else has to be whitelisted below.
 TEXTURED_MATERIALS = (
@@ -161,7 +161,7 @@ def main():
     assert files, 'no .glb files found in ' + MODELS
     assert len(files) == 8, 'expected 8 GLBs, found %d: %s' % (len(files), files)
 
-    lines, failures, total = [], [], 0
+    lines, failures, failed_files, total = [], [], set(), 0
     for fn in files:
         path = os.path.join(MODELS, fn)
         size = os.path.getsize(path)
@@ -178,6 +178,7 @@ def main():
                 check_ground(js, binchunk)
         except AssertionError as e:
             failures.append(str(e))
+            failed_files.add(fn)
             lines.append('    CHECK FAIL: %s' % e)
         else:
             lines.append('    CHECK PASS')
@@ -194,8 +195,7 @@ def main():
     else:
         lines.append('SIZE OK   %.2f MiB <= %.2f MiB target' % (total / 1048576, SIZE_WARN / 1048576))
 
-    failed = {f.split(':')[0] for f in failures}
-    lines.append('SUMMARY %d/%d files failed' % (len(failed), len(files)))
+    lines.append('SUMMARY %d/%d files failed' % (len(failed_files), len(files)))
     lines.append('RESULT  %s' % ('PASS' if not failures else 'FAIL (%d)' % len(failures)))
     print('\n'.join(lines))
     for f in failures:
