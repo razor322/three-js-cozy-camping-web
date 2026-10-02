@@ -46,7 +46,8 @@ class MB:
     def __init__(self):
         self.v=[]; self.f=[]; self.mi=[]; self.fc=[]; self.want=[]
     def corner(self, co, col):
-        self.v.append(tuple(co)); return len(self.v)-1
+        x,y,z = co
+        self.v.append((x,z,y)); return len(self.v)-1
     def face(self, cos, mat, col, want):
         idx=[self.corner(p, col) for p in cos]
         self.f.append(tuple(idx)); self.mi.append(mat); self.fc.append(col); self.want.append(tuple(want))
@@ -72,6 +73,8 @@ class MB:
         for ids,mi,w in zip(self.f,self.mi,self.want):
             cos=[self.v[i] for i in ids]
             n=self._normal(cos)
+            # want authored Y-up; stored verts are Z-up after corner() swap
+            w=(w[0],w[2],w[1])
             if n[0]*w[0]+n[1]*w[1]+n[2]*w[2] < 0:
                 ids=tuple([ids[0]]+list(reversed(ids[1:])))
             f2.append(ids); mi2.append(mi)
@@ -123,6 +126,8 @@ class MB2(MB):
         for ids,mi,w,lc in zip(self.f,self.mi,self.want,self.loopcols):
             cos=[self.v[i] for i in ids]
             n=self._normal(cos)
+            # want authored Y-up; stored verts are Z-up after corner() swap
+            w=(w[0],w[2],w[1])
             if n[0]*w[0]+n[1]*w[1]+n[2]*w[2] < 0:
                 ids=tuple([ids[0]]+list(reversed(ids[1:])))
                 lc=list(reversed(lc))
@@ -158,16 +163,20 @@ def select_only(objs):
     bpy.context.view_layer.objects.active = objs[0] if objs else None
 
 def ground_min_y(obj):
-    return min(v.co.y for v in obj.data.vertices)
+    # stored verts are Z-up (Blender native)
+    return min(v.co.z for v in obj.data.vertices)
 
 def lift_to_zero(obj):
+    # only pull up: parts designed above ground (pine cones, lantern glass)
+    # must keep their authored heights
     d = -ground_min_y(obj)
-    if abs(d) > 1e-6:
-        obj.data.transform(Matrix.Translation((0, d, 0)))
+    if d > 1e-6:
+        obj.data.transform(Matrix.Translation((0, 0, d)))
 
 def export_glb(objs, path, anim=False):
     select_only(objs)
     bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True,
+    # verts are Blender Z-up; exporter converts to glTF Y-up
         export_yup=True, export_materials='EXPORT', export_image_format='NONE',
         export_texcoords=False, export_normals=True, export_vertex_color='NAME',
         export_vertex_color_name='Color', export_all_vertex_colors=True,
@@ -183,48 +192,74 @@ def rounded_rect(n=96, size=18.0, r=3.0):
 
 # ---------------- builders ----------------
 def build_ground():
+    # Rounded-square grid 18x18, r=3 corners projected onto the arc (no
+    # staircase cut). Flat center, subtle edge jitter +-0.06, skirt down to
+    # y=0.0 tapering 0.93, flat bottom fan. Authored at final height (top ~0.8).
     random.seed(7)
-    pts=rounded_rect(); NV=len(pts)
-    rings=[0.0,0.2,0.35,0.5,0.65,0.8,0.9,1.0]
-    top=MB2(); GR='M_Grass'
-    ringpts=[]
-    for t in rings:
-        rp=[]
-        for (x,z) in pts:
-            d=math.hypot(x,z)
-            y=0.0 if d<5 else random.uniform(-0.15,0.15)*min(1,(d-5)/4)*t
-            rp.append((x*t, y*t, z*t))
-        ringpts.append(rp)
-    for b in range(len(rings)-1):
-        for i in range(NV):
-            j=(i+1)%NV
-            a,b2=ringpts[b][i],ringpts[b][j]; c,d=ringpts[b+1][j],ringpts[b+1][i]
-            mx=(a[0]+b2[0]+c[0]+d[0])/4; mz=(a[2]+b2[2]+c[2]+d[2])/4
-            dd=math.hypot(mx,mz)
-            patch=math.sin(mx*1.3)*math.sin(mz*1.7+1.0)
-            col=C('M_GrassPatch') if (dd<5.5 and patch>0.45) else C('M_Grass',0.05,seed=i+b*99)
-            top.quad(a,b2,c,d,0,col,(0,1,0))
-    o_top=top.bake('Ground_Top','Ground_Top',['M_Grass'])
-    side=MB2()
-    for i in range(NV):
-        j=(i+1)%NV
-        t0=ringpts[-1][i]; t1=ringpts[-1][j]
-        b0=(t0[0]*0.93,-0.8,t0[2]*0.93); b1=(t1[0]*0.93,-0.8,t1[2]*0.93)
-        mx,my,mz=(t0[0]+t1[0])/2,(t0[1]-0.4),(t0[2]+t1[2])/2
-        w=(mx,0,mz); L=math.hypot(mx,mz) or 1; w=(w[0]/L,0,w[2]/L)
-        side.quad(t0,t1,b1,b0,0,C('M_Soil',0.06,seed=i),w)
-    bot=side  # bottom fan into same object
-    bot.v.append((0,-0.8,0))
-    cx=len(bot.v)-1
-    for i in range(NV):
-        j=(i+1)%NV
-        p0=(ringpts[-1][i][0]*0.93,-0.8,ringpts[-1][i][2]*0.93)
-        p1=(ringpts[-1][j][0]*0.93,-0.8,ringpts[-1][j][2]*0.93)
-        i0=bot.corner(p0,C('M_Soil')); i1=bot.corner(p1,C('M_Soil'))
-        bot.f.append((cx,i1,i0)); bot.mi.append(0); bot.want.append((0,-1,0))
-        bot.loopcols.append([C('M_Soil')]*3)
-    o_side=bot.bake('Ground_Sides','Ground_Sides',['M_Soil'])
-    return [o_top,o_side], 'environment/ground.blend', 'ground.glb'
+    N = 24
+    half = 9.0
+    R = 3.0
+    Q = half - R  # corner circle centers at (+-Q, +-Q)
+    step = 18.0 / N
+
+    def project(x, z):
+        ax, az = abs(x), abs(z)
+        if ax > Q and az > Q:
+            dx, dz = ax - Q, az - Q
+            d = math.hypot(dx, dz)
+            if d > R:
+                s = R / d
+                ax, az = Q + dx * s, Q + dz * s
+        return math.copysign(ax, x), math.copysign(az, z)
+
+    def height(x, z):
+        d = math.hypot(x, z)
+        if d < 5:
+            return 0.8
+        edge = min(1.0, math.hypot(max(0, abs(x)-(half-1)), max(0, abs(z)-(half-1))) / 4.0)
+        return 0.8 + random.uniform(-0.06, 0.06) * edge
+
+    top = MB2()
+    V = {}
+    for j in range(N+1):
+        for i in range(N+1):
+            x = -half + i*step
+            z = -half + j*step
+            x, z = project(x, z)
+            V[(i, j)] = (x, height(x, z), z)
+    for j in range(N):
+        for i in range(N):
+            p00 = V[(i, j)]; p10 = V[(i+1, j)]; p11 = V[(i+1, j+1)]; p01 = V[(i, j+1)]
+            col = C('M_Grass', 0.05, seed=i*31+j)
+            top.quad(p00, p10, p11, p01, 0, col, (0, 1, 0))
+    o_top = top.bake('Ground_Top', 'Ground_Top', ['M_Grass'])
+
+    # perimeter ring (grid boundary), ordered around the outline
+    ring = [(i, 0) for i in range(N+1)]
+    ring += [(N, j) for j in range(1, N+1)]
+    ring += [(i, N) for i in range(N-1, -1, -1)]
+    ring += [(0, j) for j in range(N-1, 0, -1)]
+
+    side = MB2()
+    for k in range(len(ring)):
+        a = ring[k]; b = ring[(k+1) % len(ring)]
+        t0 = V[a]; t1 = V[b]
+        b0 = (t0[0]*0.93, 0.0, t0[2]*0.93)
+        b1 = (t1[0]*0.93, 0.0, t1[2]*0.93)
+        mx, mz = (t0[0]+t1[0])/2, (t0[2]+t1[2])/2
+        L = math.hypot(mx, mz) or 1
+        side.quad(t0, t1, b1, b0, 0, C('M_Soil', 0.06, seed=k), (mx/L, 0, mz/L))
+    # bottom fan
+    cb = side.corner((0, 0.0, 0), C('M_Soil'))
+    for k in range(len(ring)):
+        pa = V[ring[k]]; pb = V[ring[(k+1) % len(ring)]]
+        i0 = side.corner((pa[0]*0.93, 0.0, pa[2]*0.93), C('M_Soil'))
+        i1 = side.corner((pb[0]*0.93, 0.0, pb[2]*0.93), C('M_Soil'))
+        side.f.append((cb, i1, i0)); side.mi.append(0)
+        side.want.append((0, -1, 0))
+        side.loopcols.append([C('M_Soil')]*3)
+    o_side = side.bake('Ground_Sides', 'Ground_Sides', ['M_Soil'])
+    return [o_top, o_side], 'environment/ground.blend', 'ground.glb'
 
 def build_tent():
     W,D,H,E=1.5,1.5,2.2,0.12
@@ -262,9 +297,9 @@ def build_tent():
     cr=MB2()
     cr.quad([(-0.55,0.0,D-0.3),(0.55,0.0,D-0.3),(0.55,1.55,D-0.3),(-0.55,1.55,D-0.3)],0,C('M_TentCream'),(0,0,1))
     o_cream=cr.bake('Tent_Inner','Tent_Inner',['M_TentCream'])
-    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.04, depth=H+0.1, location=(0,(H+0.1)/2,D))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.04, depth=H+0.1, location=(0,D,(H+0.1)/2))
     p1=bpy.context.view_layer.objects.active
-    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.04, depth=H+0.1, location=(0,(H+0.1)/2,-D))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.04, depth=H+0.1, location=(0,-D,(H+0.1)/2))
     p2=bpy.context.view_layer.objects.active
     for p in (p1,p2):
         m=p.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')

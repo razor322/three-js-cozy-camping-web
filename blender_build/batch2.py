@@ -10,7 +10,7 @@ def build_campfire():
         dx,dz=math.cos(a+math.pi/2),math.sin(a+math.pi/2)
         L=0.8; r=0.06; seg=10
         bpy.ops.mesh.primitive_cylinder_add(vertices=seg, radius=r, depth=L,
-            location=(cx,0.12,cz), rotation=(math.pi/2,0,-math.atan2(dz,dx)+math.pi/2))
+            location=(cx,cz,0.12), rotation=(math.pi/2,0,math.atan2(dx,-dz)))
         log=bpy.context.view_layer.objects.active
         log.name='Campfire_Log_%d'%(i+1); log.data.name=log.name
         m=log.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
@@ -70,7 +70,7 @@ def build_campfire():
         o=fl.bake(nm,nm,[mt])
         objs.append(o)
     # base disc
-    bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.35, depth=0.04, location=(0,0.02,0))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=16, radius=0.35, depth=0.04, location=(0,0,0.02))
     base=bpy.context.view_layer.objects.active
     base.name='Campfire_Base'; base.data.name='Campfire_Base'
     m=base.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
@@ -81,12 +81,14 @@ def build_campfire():
     return objs,'camping/campfire.blend','campfire.glb'
 
 def blob(obj_name, mesh_name, center, radii, mat, seed, detail=2):
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=detail, radius=1, location=center)
+    # center/radii authored Y-up (x, height, depth); store native Z-up
+    cx, cy, cz = center
+    rx, ry, rz = radii  # (x, height, depth)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=detail, radius=1, location=(cx, cz, cy))
     o=bpy.context.view_layer.objects.active
     o.name=obj_name; o.data.name=mesh_name
-    rx,ry,rz=radii
     for v in o.data.vertices:
-        v.co.x*=rx; v.co.y*=ry; v.co.z*=rz
+        v.co.x*=rx; v.co.y*=rz; v.co.z*=ry
     m=o.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
     rr=random.Random(seed)
     # per-face shade variation via loop colors
@@ -96,7 +98,7 @@ def blob(obj_name, mesh_name, center, radii, mat, seed, detail=2):
         base=hexrgb(HEX[mat]); c=(min(base[0]*f,1),min(base[1]*f,1),min(base[2]*f,1),1.0)
         for li in poly.loop_indices: col.data[li].color=c
     m.materials.append(get_mat(mat))
-    o.data.transform(Matrix.Translation((-center[0],-center[1],-center[2])))
+    o.data.transform(Matrix.Translation((-cx, -cz, -cy)))
     o.location=(0,0,0)
     # NOTE: caller positions; keep origin bottom-center by lifting later
     return o
@@ -112,7 +114,7 @@ def build_rocks():
 
 def build_pine():
     parts=[]
-    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.125, depth=1.0, location=(0,0.5,0))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.125, depth=1.0, location=(0,0,0.5))
     tr=bpy.context.view_layer.objects.active; tr.name='Pine_Trunk'; tr.data.name='Pine_Trunk'
     m=tr.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
     for i in range(len(col.data)): col.data[i].color=C('M_Trunk')
@@ -120,7 +122,7 @@ def build_pine():
     m.materials.append(get_mat('M_Trunk')); parts.append(tr)
     layers=[(2.4,1.5,1.05,'M_FoliageDark',0.4),(1.9,2.2,0.85,'M_FoliageLight',2.5),(1.4,2.85,0.7,'M_FoliageDark',1.2),(0.9,3.45,0.55,'M_FoliageLight',3.1)]
     for i,(W,Y,Hh,mt,rot) in enumerate(layers):
-        bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=W/2, depth=Hh, location=(0.06*((i%2)*2-1)*0.3,Y,0.05*(1 if i%2 else -1)), rotation=(0,0,rot))
+        bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=W/2, depth=Hh, location=(0.06*((i%2)*2-1)*0.3,0.05*(1 if i%2 else -1),Y), rotation=(0,0,rot))
         cone=bpy.context.view_layer.objects.active
         cone.name='Pine_Foliage_%d'%(i+1); cone.data.name=cone.name
         m=cone.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')

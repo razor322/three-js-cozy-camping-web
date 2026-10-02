@@ -14,14 +14,15 @@ for name in todo:
     clear()
     print('=== BUILD', name, '===')
     objs, blend_rel, glb_name = fn()
-    for o in objs:
-        lift_to_zero(o)
-        o.select_set(False)
+    # apply transforms FIRST so lift measures world height, not local
     for o in objs:
         bpy.context.view_layer.objects.active = o
         o.select_set(True)
         try: bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
         except RuntimeError: pass
+        o.select_set(False)
+    for o in objs:
+        lift_to_zero(o)
         o.select_set(False)
     bp = os.path.join(ROOT,'camping-assets',blend_rel)
     os.makedirs(os.path.dirname(bp), exist_ok=True)
