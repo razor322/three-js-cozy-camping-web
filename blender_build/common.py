@@ -21,17 +21,50 @@ HEX = {
 EMISSIVE = {'M_FlameOuter','M_FlameMid','M_FlameInner','M_FlameBase','M_LanternLight'}
 ROUGH = {'M_LanternMetal':0.6,'M_LanternGlass':0.4}
 GLASSY = {'M_LanternGlass'}
+# Maps are near-neutral detail, so one map serves several materials; the HEX
+# palette would double-darken through the glTF factor, so textured materials
+# keep Base Color white and the texture owns all detail.
+TEX_ALBEDO = {'M_Grass':'grass_albedo','M_Soil':'soil_albedo','M_TentOrange':'canvas_albedo',
+  'M_FoliageDark':'foliage_albedo','M_FoliageLight':'foliage_albedo','M_BushMid':'foliage_albedo',
+  'M_Stone':'stone_albedo','M_StoneWarm':'stone_albedo','M_Bark':'wood_albedo','M_LogEnd':'wood_albedo',
+  'M_LanternMetal':'metal_albedo'}
+TEX_ROUGH = {'M_Grass':'grass_rough','M_Soil':'grass_rough','M_TentOrange':'canvas_rough',
+  'M_FoliageDark':'foliage_rough','M_FoliageLight':'foliage_rough','M_BushMid':'foliage_rough',
+  'M_Stone':'stone_rough','M_StoneWarm':'stone_rough','M_Bark':'wood_rough','M_LogEnd':'wood_rough',
+  'M_LanternMetal':'metal_rough'}
 
 def hexrgb(h):
     h=h.lstrip('#'); return tuple(int(h[i:i+2],16)/255 for i in (0,2,4))+(1.0,)
+
+def _tex_image(file, non_color):
+    img = bpy.data.images.load(os.path.join(TEXTURE_DIR, file + '.png'), check_existing=True)
+    img.colorspace_settings.name = 'Non-Color' if non_color else 'sRGB'
+    return img
+
+def _tex_link(nt, bsdf, file, non_color, socket, loc):
+    t = nt.nodes.new('ShaderNodeTexImage')
+    t.image = _tex_image(file, non_color)
+    t.location = loc
+    nt.links.new(t.outputs['Color'], bsdf.inputs[socket])
 
 def get_mat(name):
     m = bpy.data.materials.get(name)
     if m: return m
     m = bpy.data.materials.new(name)
-    bsdf = m.node_tree.nodes.get('Principled BSDF')
-    bsdf.inputs['Base Color'].default_value = hexrgb(HEX[name])
-    bsdf.inputs['Roughness'].default_value = ROUGH.get(name, 0.9)
+    m.use_nodes = True
+    nt = m.node_tree
+    bsdf = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED')
+    albedo = TEX_ALBEDO.get(name)
+    rough = TEX_ROUGH.get(name)
+    if albedo:
+        _tex_link(nt, bsdf, albedo, False, 'Base Color', (-360, 200))
+        bsdf.inputs['Base Color'].default_value = (1.0, 1.0, 1.0, 1.0)
+    else:
+        bsdf.inputs['Base Color'].default_value = hexrgb(HEX[name])
+    if rough:
+        _tex_link(nt, bsdf, rough, True, 'Roughness', (-360, -160))
+    else:
+        bsdf.inputs['Roughness'].default_value = ROUGH.get(name, 0.9)
     bsdf.inputs['Metallic'].default_value = 0.3 if name=='M_LanternMetal' else 0.0
     if name in EMISSIVE:
         try:
@@ -177,9 +210,8 @@ def export_glb(objs, path, anim=False):
     select_only(objs)
     bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True,
     # verts are Blender Z-up; exporter converts to glTF Y-up
-        export_yup=True, export_materials='EXPORT', export_image_format='NONE',
-        export_texcoords=False, export_normals=True, export_vertex_color='NAME',
-        export_vertex_color_name='Color', export_all_vertex_colors=True,
+        export_yup=True, export_materials='EXPORT', export_image_format='AUTO',
+        export_texcoords=True, export_normals=True, export_vertex_color='NONE',
         export_animations=anim)
 
 def rounded_rect(n=96, size=18.0, r=3.0):
@@ -191,6 +223,23 @@ def rounded_rect(n=96, size=18.0, r=3.0):
     return pts
 
 # ---------------- builders ----------------
+GROUND_H = 0.814          # skirt top band height: v=1 at the top edge, 0 at y=0
+
+def _uv_ground_top(mesh):
+    """One planar map over the full 18x18 ground: zero tiling, u/v in [0,1]."""
+    uv = mesh.uv_layers.new(name='UVMap')
+    for loop in mesh.loops:
+        x, depth, _ = mesh.vertices[loop.vertex_index].co
+        uv.data[loop.index].uv = ((x + 9.0) / 18.0, (depth + 9.0) / 18.0)
+
+def _uv_ground_sides(mesh):
+    """Soil skirt: u wraps the perimeter once, v is the height band."""
+    uv = mesh.uv_layers.new(name='UVMap')
+    for loop in mesh.loops:
+        x, depth, h = mesh.vertices[loop.vertex_index].co
+        u = 0.5 + math.atan2(depth, x) / (2 * math.pi)
+        uv.data[loop.index].uv = (u, h / GROUND_H)
+
 def build_ground():
     # Rounded-square grid 18x18, r=3 corners projected onto the arc (no
     # staircase cut). Flat center, subtle edge jitter +-0.06, skirt down to
@@ -259,6 +308,8 @@ def build_ground():
         side.want.append((0, -1, 0))
         side.loopcols.append([C('M_Soil')]*3)
     o_side = side.bake('Ground_Sides', 'Ground_Sides', ['M_Soil'])
+    _uv_ground_top(o_top.data)
+    _uv_ground_sides(o_side.data)
     return [o_top, o_side], 'environment/ground.blend', 'ground.glb'
 
 def build_tent():

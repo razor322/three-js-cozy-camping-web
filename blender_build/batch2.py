@@ -15,25 +15,19 @@ def build_campfire():
         log.name='Campfire_Log_%d'%(i+1); log.data.name=log.name
         m=log.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
         for li in range(len(col.data)):
-            v=m.vertices[m.loops[li].vertex_index].co
             col.data[li].color=C('M_Bark',0.05,seed=i*10+li)
         m.materials.append(get_mat('M_Bark'))
-        # end caps get LogEnd: find cap loops by normal
-        m2=m; 
+        m.materials.append(get_mat('M_LogEnd'))
         for poly in m.polygons: poly.use_smooth=False
-        log.data.materials.append(get_mat('M_LogEnd'))
-        for poly in m.polygons:
-            if abs(poly.normal.z)>0.99 or (abs(poly.normal.x)<0.01 and abs(poly.normal.y)<0.01):
-                pass
         objs.append(log)
-    # recolor caps: vertices near ends
+    # end caps get M_LogEnd by material_index (slot 1), not vertex colour: the
+    # exporter drops COLOR_0, so tinting per-corner would not survive the GLB.
+    # Object rotation is still unapplied here, so the cylinder axis is local Z.
     for log in objs[:]:
         m=log.data
-        col=m.color_attributes['Color']
-        for li in range(len(col.data)):
-            v=m.vertices[m.loops[li].vertex_index].co
-            if abs(v.z)>L/2-0.02:
-                col.data[li].color=C('M_LogEnd')
+        for poly in m.polygons:
+            if abs(poly.normal.z) > 0.9:
+                poly.material_index = 1
     # flames: 3 nested cones-ish (6-sided, bent tip via offset top ring)
     specs=[('Campfire_Flame_Outer','M_FlameOuter',0.30,0.90),('Campfire_Flame_Mid','M_FlameMid',0.22,0.75),('Campfire_Flame_Inner','M_FlameInner',0.14,0.60)]
     for nm,mt,R,H in specs:
