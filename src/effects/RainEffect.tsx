@@ -51,7 +51,7 @@ export default function RainEffect() {
       const bz = positions[i * 2 + 1];
       // phase grows -> y decreases: velocity.y = -SPEED, wraps top->top+RAIN_HEIGHT
       const phase = (time * SPEED + i * 1.37) % RAIN_HEIGHT;
-      const y = TERRAIN_TOP + RAIN_HEIGHT - phase; // y in [0.8, 15.8], never below terrain
+      const y = TERRAIN_TOP + RAIN_HEIGHT + DROP_LEN / 2 - phase; // lowest drawn point sits at TERRAIN_TOP
       const x = ((bx + WIND_X * time + AREA) % (AREA * 2)) - AREA; // wraps inside +/-10
       const z = ((bz + WIND_Z * time + AREA) % (AREA * 2)) - AREA;
       dummy.position.set(x, y, z);
