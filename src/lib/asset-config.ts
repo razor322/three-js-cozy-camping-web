@@ -7,6 +7,7 @@ export const assets = {
   bush: "/models/bush.glb",
   lantern: "/models/lantern.glb",
   stump: "/models/stump.glb",
+  meadow: "/models/meadow.glb",
 } as const;
 
 export type AssetKey = keyof typeof assets;

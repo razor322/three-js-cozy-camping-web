@@ -107,23 +107,138 @@ def build_rocks():
     return [sma,med,flat],'environment/rocks.blend','rocks.glb'
 
 def build_pine():
+    # Stylized pine: tapered trunk + root flare, 5 foliage tiers each with a
+    # drooping skirt cone, inner core cone and 6 radial bough cones, tip + bud.
     parts=[]
-    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.125, depth=1.0, location=(0,0,0.5))
+    bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=0.13, depth=1.2, location=(0,0,0.6))
     tr=bpy.context.view_layer.objects.active; tr.name='Pine_Trunk'; tr.data.name='Pine_Trunk'
-    m=tr.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+    m=tr.data
+    for v in m.vertices:  # taper toward the top ring
+        if v.co.z > 1.0:
+            v.co.x *= 0.62; v.co.y *= 0.62
+    col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
     for i in range(len(col.data)): col.data[i].color=C('M_Trunk')
     for poly in m.polygons: poly.use_smooth=False
     m.materials.append(get_mat('M_Trunk')); parts.append(tr)
-    layers=[(2.4,1.5,1.05,'M_FoliageDark',0.4),(1.9,2.2,0.85,'M_FoliageLight',2.5),(1.4,2.85,0.7,'M_FoliageDark',1.2),(0.9,3.45,0.55,'M_FoliageLight',3.1)]
-    for i,(W,Y,Hh,mt,rot) in enumerate(layers):
-        bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=W/2, depth=Hh, location=(0.06*((i%2)*2-1)*0.3,0.05*(1 if i%2 else -1),Y), rotation=(0,0,rot))
-        cone=bpy.context.view_layer.objects.active
-        cone.name='Pine_Foliage_%d'%(i+1); cone.data.name=cone.name
-        m=cone.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
-        for li in range(len(col.data)): col.data[li].color=C(mt,0.04,seed=i*7+li)
+    roots=[]
+    for i in range(5):  # root flare blobs around the base
+        a=i/5*2*math.pi+0.3
+        o=blob('Pine_Root_%d'%(i+1),'Pine_Root_%d'%(i+1),
+               (math.cos(a)*0.2,0.12,math.sin(a)*0.2),(0.24,0.1,0.12),'M_Trunk',51+i,detail=1)
+        roots.append(o)
+    foliage=[]
+    tiers=[(1.05,1.25,1.0),(1.7,1.05,0.95),(2.35,0.85,0.85),(2.95,0.62,0.75),(3.5,0.42,0.6)]
+    up=Vector((0,0,1))
+    for i,(baseY,R,H) in enumerate(tiers):
+        mt='M_FoliageDark' if i%2==0 else 'M_FoliageLight'
+        jx=0.05*((i%2)*2-1); jz=0.04*(1 if i%2 else -1)
+        rot=i*0.5
+        bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=R*0.62, depth=H,
+            location=(jx,jz,baseY+H*0.32), rotation=(0,0,rot))
+        core=bpy.context.view_layer.objects.active
+        core.name='Pine_Tier%d_Core'%(i+1); core.data.name=core.name
+        m=core.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+        for li in range(len(col.data)): col.data[li].color=C(mt,0.04,seed=i*13+li)
         for poly in m.polygons: poly.use_smooth=False
-        m.materials.append(get_mat(mt)); parts.append(cone)
-    return parts,'vegetation/pine-tree.blend','pine-tree.glb'
+        m.materials.append(get_mat(mt)); foliage.append(core)
+        bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=R, depth=H*0.5,
+            location=(jx,jz,baseY+H*0.18), rotation=(0,0,rot+0.3))
+        skirt=bpy.context.view_layer.objects.active
+        skirt.name='Pine_Tier%d_Skirt'%(i+1); skirt.data.name=skirt.name
+        m=skirt.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+        for li in range(len(col.data)): col.data[li].color=C(mt,0.04,seed=i*17+li)
+        for poly in m.polygons: poly.use_smooth=False
+        m.materials.append(get_mat(mt)); foliage.append(skirt)
+        L=R*1.05  # radial boughs, tilted slightly upward
+        for k in range(6):
+            a=k/6*2*math.pi+rot
+            d=Vector((math.cos(a),math.sin(a),0.55)).normalized()
+            cx=jx+math.cos(a)*R*0.5+d.x*L*0.32
+            cz=jz+math.sin(a)*R*0.5+d.y*L*0.32
+            cy=baseY+H*0.15+d.z*L*0.32
+            bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=R*0.2, depth=L, location=(cx,cz,cy))
+            bo=bpy.context.view_layer.objects.active
+            bo.name='Pine_Tier%d_Bough%d'%(i+1,k+1); bo.data.name=bo.name
+            bo.rotation_mode='QUATERNION'
+            bo.rotation_quaternion=up.rotation_difference(d)
+            m=bo.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+            for li in range(len(col.data)): col.data[li].color=C(mt,0.05,seed=i*23+k*5+li)
+            for poly in m.polygons: poly.use_smooth=False
+            m.materials.append(get_mat(mt)); foliage.append(bo)
+    bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=0.28, depth=0.5, location=(0,0,4.05))
+    tip=bpy.context.view_layer.objects.active
+    tip.name='Pine_Tip'; tip.data.name='Pine_Tip'
+    m=tip.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+    for li in range(len(col.data)): col.data[li].color=C('M_FoliageLight')
+    for poly in m.polygons: poly.use_smooth=False
+    m.materials.append(get_mat('M_FoliageLight')); foliage.append(tip)
+    bud=blob('Pine_Bud','Pine_Bud',(0,4.32,0),(0.11,0.1,0.11),'M_FoliageLight',77,detail=1)
+    foliage.append(bud)
+    # join into 2 meshes: trunk group + foliage group (Dark/Light slots).
+    # ponytail: 48 draw calls per pine -> 2; geometry shared via clone(true)
+    select_only([tr]+roots); bpy.ops.object.join()
+    trunk=bpy.context.view_layer.objects.active; trunk.name='Pine_Trunk'; trunk.data.name='Pine_Trunk'
+    select_only(foliage); bpy.ops.object.join()
+    fol=bpy.context.view_layer.objects.active; fol.name='Pine_Foliage'; fol.data.name='Pine_Foliage'
+    return [trunk,fol],'vegetation/pine-tree.blend','pine-tree.glb'
+
+def build_meadow():
+    # Loose ground dressing, scattered code-side: grass tuft (joined blades),
+    # two flowers (stem + bloom + petals, joined, 3 material slots each),
+    # one pebble. Origin bottom-center, lifted to zero.
+    parts=[]
+    rng=random.Random(9)
+    blades=[]
+    for i in range(7):
+        a=i/7*2*math.pi+rng.uniform(-0.2,0.2)
+        tilt=rng.uniform(0.08,0.3)
+        h=rng.uniform(0.22,0.38)
+        bpy.ops.mesh.primitive_cone_add(vertices=4, radius1=0.035, depth=h,
+            location=(math.cos(a)*0.05,math.sin(a)*0.05,h/2),
+            rotation=(math.sin(a)*tilt,-math.cos(a)*tilt,a))
+        b=bpy.context.view_layer.objects.active
+        b.name='Blade_%d'%i; b.data.name=b.name
+        b.scale=(0.45,1.0,1.0)
+        m=b.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+        for li in range(len(col.data)): col.data[li].color=C('M_Grass',0.05,seed=i*3+li)
+        for poly in m.polygons: poly.use_smooth=False
+        m.materials.append(get_mat('M_Grass')); blades.append(b)
+    select_only(blades); bpy.ops.object.join()
+    tuft=bpy.context.view_layer.objects.active; tuft.name='GrassTuft'; tuft.data.name='GrassTuft'
+    lift_to_zero(tuft); parts.append(tuft)
+    for fname, petal_mat, fseed in [('Flower','M_Petal',61),('FlowerPink','M_PetalPink',62)]:
+        fparts=[]
+        bpy.ops.mesh.primitive_cylinder_add(vertices=6, radius=0.015, depth=0.3, location=(0,0,0.15))
+        stem=bpy.context.view_layer.objects.active
+        stem.name=fname+'_Stem'; stem.data.name=stem.name
+        m=stem.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+        for li in range(len(col.data)): col.data[li].color=C('M_Stem')
+        for poly in m.polygons: poly.use_smooth=False
+        m.materials.append(get_mat('M_Stem')); fparts.append(stem)
+        bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.045, depth=0.03, location=(0,0,0.31))
+        dot=bpy.context.view_layer.objects.active
+        dot.name=fname+'_Bloom'; dot.data.name=dot.name
+        m=dot.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+        for li in range(len(col.data)): col.data[li].color=C('M_BloomDot')
+        for poly in m.polygons: poly.use_smooth=False
+        m.materials.append(get_mat('M_BloomDot')); fparts.append(dot)
+        for k in range(6):
+            a=k/6*2*math.pi
+            bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=0.05,
+                location=(math.cos(a)*0.075,math.sin(a)*0.075,0.31))
+            p=bpy.context.view_layer.objects.active
+            p.name='%s_Petal%d'%(fname,k+1); p.data.name=p.name
+            p.scale=(1.0,1.0,0.45)
+            m=p.data; col=m.color_attributes.new('Color','FLOAT_COLOR','CORNER')
+            for li in range(len(col.data)): col.data[li].color=C(petal_mat,0.03,seed=fseed+k)
+            for poly in m.polygons: poly.use_smooth=False
+            m.materials.append(get_mat(petal_mat)); fparts.append(p)
+        select_only(fparts); bpy.ops.object.join()
+        fl=bpy.context.view_layer.objects.active; fl.name=fname; fl.data.name=fname
+        lift_to_zero(fl); parts.append(fl)
+    peb=blob('Pebble','Pebble',(0,0.06,0),(0.09,0.055,0.07),'M_Stone',71,detail=1)
+    lift_to_zero(peb); parts.append(peb)
+    return parts,'vegetation/meadow.blend','meadow.glb'
 
 def build_bush():
     parts=[]

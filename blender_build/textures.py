@@ -192,7 +192,7 @@ def metal_rough(buf, w, h):
 
 TEXTURE_SPECS = {
   'grass_albedo':   (512, grass_albedo),   'canvas_albedo':  (512, canvas_albedo),
-  'foliage_albedo': (512, foliage_albedo),
+  'foliage_albedo': (256, foliage_albedo),
   'grass_rough':    (256, grass_rough),    'soil_albedo':    (256, soil_albedo),
   'canvas_rough':   (256, canvas_rough),   'foliage_rough':  (256, foliage_rough),
   'stone_albedo':   (256, stone_albedo),   'stone_rough':    (256, stone_rough),

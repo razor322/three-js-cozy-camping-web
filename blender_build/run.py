@@ -20,7 +20,8 @@ def uv_mesh(o):
 
 ARGS = sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else ['all']
 BUILDERS = {'ground':build_ground,'tent':build_tent,'campfire':build_campfire,'rocks':build_rocks,
- 'pine-tree':build_pine,'bush':build_bush,'lantern':build_lantern,'stump':build_stump}
+ 'pine-tree':build_pine,'bush':build_bush,'lantern':build_lantern,'stump':build_stump,
+ 'meadow':build_meadow}
 todo = list(BUILDERS) if 'all' in ARGS else ARGS
 generate_textures()              # idempotent, deterministic; must precede get_mat()
 for name in todo:

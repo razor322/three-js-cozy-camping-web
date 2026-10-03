@@ -1,4 +1,4 @@
-"""Validate the 8 exported GLBs in public/models against the texture spec.
+"""Validate the 9 exported GLBs in public/models against the texture spec.
 
 Run: python tools/validate_glb.py   (from any cwd)
 
@@ -20,7 +20,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS = os.path.join(ROOT, 'public', 'models')
 
-TEXTURED = ('ground', 'tent', 'campfire', 'rocks', 'pine-tree', 'bush', 'lantern', 'stump')
+TEXTURED = ('ground', 'tent', 'campfire', 'rocks', 'pine-tree', 'bush', 'lantern', 'stump', 'meadow')
 # Materials that must carry both maps -- the TEX_ALBEDO keys in
 # blender_build/common.py. Anything else has to be whitelisted below.
 TEXTURED_MATERIALS = (
@@ -35,6 +35,7 @@ NO_TEX_MATERIALS = (
     'M_LanternGlass', 'M_LanternLight',
     'M_TentCream', 'M_TentTrim', 'M_Pole',
     'M_LogRing', 'M_Trunk',
+    'M_Stem', 'M_Petal', 'M_PetalPink', 'M_BloomDot',
 )
 GROUND_MESHES = ('Ground_Top', 'Ground_Sides')
 GROUND_HALF = 9.0                      # X/Z half-extent of the diorama floor
@@ -159,7 +160,7 @@ def describe(fn, js, binchunk):
 def main():
     files = sorted(f for f in os.listdir(MODELS) if f.endswith('.glb'))
     assert files, 'no .glb files found in ' + MODELS
-    assert len(files) == 8, 'expected 8 GLBs, found %d: %s' % (len(files), files)
+    assert len(files) == 9, 'expected 9 GLBs, found %d: %s' % (len(files), files)
 
     lines, failures, failed_files, total = [], [], set(), 0
     for fn in files:

@@ -231,6 +231,70 @@ export function Bush(props: JSX.IntrinsicElements["group"]) {
   );
 }
 
+// ponytail: scatter seeded at module scope (stable across renders), clones share geo
+const MEADOW_G = 0.8;
+const MEADOW_KEEP: Array<[number, number, number]> = [
+  // x, z, radius: tent, fire ring, lantern, stump, rock sets
+  [-2.6, -1.8, 2.2], [1.2, 1.2, 1.6], [-0.7, 0.4, 0.8], [2.8, -1, 0.9],
+  [2.4, 2.6, 1.6], [-4.6, -3.2, 1.6],
+];
+
+function meadowSpots(seed: number, count: number): Array<{ x: number; z: number; s: number; r: number }> {
+  let h = seed >>> 0;
+  const rnd = () => {
+    h ^= h << 13; h ^= h >>> 17; h ^= h << 5; h >>>= 0;
+    return h / 4294967295;
+  };
+  const out: Array<{ x: number; z: number; s: number; r: number }> = [];
+  let guard = 0;
+  while (out.length < count && guard++ < count * 40) {
+    const x = rnd() * 16 - 8;
+    const z = rnd() * 15 - 7.5;
+    if (MEADOW_KEEP.some(([kx, kz, kr]) => (x - kx) ** 2 + (z - kz) ** 2 < kr * kr)) continue;
+    out.push({ x, z, s: 0.7 + rnd() * 0.9, r: rnd() * Math.PI * 2 });
+  }
+  return out;
+}
+
+const GRASS_SPOTS = meadowSpots(11, 90);
+const FLOWER_SPOTS = meadowSpots(23, 16);
+const PINK_SPOTS = meadowSpots(37, 10);
+const PEBBLE_SPOTS = meadowSpots(51, 22);
+
+export function Meadow() {
+  const { scene } = useGLTF(assets.meadow);
+  const group = useMemo(() => {
+    const g = new THREE.Group();
+    const src = (name: string) => {
+      const n = findNode(scene, [name]);
+      if (!n) return null;
+      const c = n.clone(true);
+      hygiene(c);
+      return c;
+    };
+    const tuft = src("GrassTuft");
+    const flower = src("Flower");
+    const pink = src("FlowerPink");
+    const pebble = src("Pebble");
+    const place = (o: THREE.Object3D | null, spots: typeof GRASS_SPOTS, y = MEADOW_G) => {
+      if (!o) return;
+      for (const p of spots) {
+        const c = o.clone(true);
+        c.position.set(p.x, y, p.z);
+        c.rotation.y = p.r;
+        c.scale.setScalar(p.s);
+        g.add(c);
+      }
+    };
+    place(tuft, GRASS_SPOTS);
+    place(flower, FLOWER_SPOTS);
+    place(pink, PINK_SPOTS);
+    place(pebble, PEBBLE_SPOTS);
+    return g;
+  }, [scene]);
+  return <primitive object={group} />;
+}
+
 export function Lantern(props: JSX.IntrinsicElements["group"]) {
   return (
     <Loader url={assets.lantern}>

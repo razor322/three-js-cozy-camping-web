@@ -14,7 +14,8 @@ HEX = {
  'M_FoliageDark':'2F5D3A','M_FoliageLight':'3F7A47','M_BushMid':'4E8B4F',
  'M_Trunk':'6B4B35','M_Bark':'7A5638','M_LogEnd':'B88A5E','M_LogRing':'8A5E3B',
  'M_TentOrange':'E07A2F','M_TentCream':'F3E3C3','M_TentTrim':'4A3426','M_Pole':'5A4030',
- 'M_Stone':'8A8680','M_StoneWarm':'8C7F72',
+  'M_Stone':'8A8680','M_StoneWarm':'8C7F72',
+  'M_Stem':'4E7A3A','M_Petal':'F5EFE0','M_PetalPink':'E88CA0','M_BloomDot':'FFD84A',
  'M_FlameOuter':'FF7A1A','M_FlameMid':'FFA928','M_FlameInner':'FFD84A','M_FlameBase':'D9560F',
  'M_LanternMetal':'3E3A2E','M_LanternGlass':'F6E6BF','M_LanternLight':'FFC95C',
 }

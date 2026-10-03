@@ -5,7 +5,7 @@ import { sceneConfig } from "../../lib/scene-config.ts";
 import Environment from "../../effects/Environment.tsx";
 import Fireflies from "../../effects/Fireflies.tsx";
 import RainEffect from "../../effects/RainEffect.tsx";
-import { Bush, Campfire, Ground, Lantern, PineTree, RockSet, Stump, Tent } from "./models.tsx";
+import { Bush, Campfire, Ground, Lantern, Meadow, PineTree, RockSet, Stump, Tent } from "./models.tsx";
 
 // ground flat-top sits at y=0.8 (bbox 0..0.814); props use it as reference
 const G = 0.8;
@@ -25,6 +25,7 @@ export default function CampingScene() {
       <Fireflies />
       <Suspense fallback={null}>
         <Ground />
+        <Meadow />
         {/* focal: tent left-center, door faces camera */}
         <Tent position={[-2.6, G, -1.8]} rotation-y={Math.PI} />
         {/* focal: campfire right-center */}
