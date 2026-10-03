@@ -38,6 +38,7 @@ Campfire    flame scale/rotation useFrame + PointLight flicker + ON/OFF
 Lantern     2 baked GLB clips (swing + glow-pulse) via mixer + emissive/light follow state
 Environment day/sunset/night lerp (~2s): sky/sun/fog + 400 stars + moon
 Rain        800 instanced drops (400 mobile) + ambient/fog dim
+Fireflies   80 Points + custom shader (twinkle/drift), night-only, dimmed by rain
 Camera      isometric-ish (12,10,12) fov 40, polar clamp, pan off
 Perf        DPR [1,1.5], basic shadows 1024, clone(true) sharing, preloaded GLB
 ```
@@ -52,7 +53,7 @@ cozy-camping/
     app/App.tsx         router (/ -> /camping)
     pages/              CampingPage (Canvas + header + panels + controls)
     scenes/camping/     CampingScene + models.tsx (loader + Interactive + fire/lantern)
-    effects/            Environment.tsx (day/night lerp) + RainEffect.tsx
+    effects/            Environment.tsx (day/night lerp) + RainEffect.tsx + Fireflies.tsx
     components/         LoadingScreen + ObjectPanel + EnvironmentControls
     stores/             campingStore.ts (zustand)
     lib/                scene-config.ts + asset-config.ts

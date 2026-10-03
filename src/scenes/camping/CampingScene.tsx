@@ -3,6 +3,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense } from "react";
 import { sceneConfig } from "../../lib/scene-config.ts";
 import Environment from "../../effects/Environment.tsx";
+import Fireflies from "../../effects/Fireflies.tsx";
 import RainEffect from "../../effects/RainEffect.tsx";
 import { Bush, Campfire, Ground, Lantern, PineTree, RockSet, Stump, Tent } from "./models.tsx";
 
@@ -21,6 +22,7 @@ export default function CampingScene() {
     >
       <Environment />
       <RainEffect />
+      <Fireflies />
       <Suspense fallback={null}>
         <Ground />
         {/* focal: tent left-center, door faces camera */}

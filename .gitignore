@@ -20,6 +20,11 @@ dist-ssr
 docs/superpowers/
 docs/development/
 
+# agent skills (local-only, installed via `npx skills add`)
+.agents/
+.claude/
+skills-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

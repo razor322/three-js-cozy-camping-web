@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import * as THREE from "three";
 import { assets } from "../../lib/asset-config.ts";
@@ -97,7 +97,7 @@ function Interactive({
 
 function useEffectCursor(hovered: boolean) {
   // ponytail: tiny helper inline vs separate file
-  useMemo(() => {
+  useEffect(() => {
     if (typeof document !== "undefined") {
       document.body.style.cursor = hovered ? "pointer" : "auto";
     }
@@ -174,9 +174,8 @@ function CampfireInner({ url, ...props }: { url: string } & JSX.IntrinsicElement
     return g;
   }, [rockScene]);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime;
-    const on = active ? 1 : 0;
     if (flames.outer) {
       flames.outer.visible = active;
       flames.outer.scale.set(1 + Math.sin(t * 9) * 0.06, 1 + Math.sin(t * 11) * 0.14, 1 + Math.cos(t * 9) * 0.06);
@@ -198,8 +197,7 @@ function CampfireInner({ url, ...props }: { url: string } & JSX.IntrinsicElement
     }
     if (light.current) {
       const target = active ? 6 + Math.sin(t * 10) * 1.2 + Math.sin(t * 23) * 0.6 : 0;
-      light.current.intensity = THREE.MathUtils.damp(light.current.intensity, target, 10, 0.016);
-      void on;
+      light.current.intensity = THREE.MathUtils.damp(light.current.intensity, target, 10, dt);
     }
   });
 
