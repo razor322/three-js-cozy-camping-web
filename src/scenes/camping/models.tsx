@@ -1,10 +1,40 @@
 import { useGLTF } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import * as THREE from "three";
 import { assets } from "../../lib/asset-config.ts";
 import { useCampingStore, type SelectableId } from "../../stores/campingStore.ts";
+
+let maxAniso: number | null = null;
+
+function textureHygiene(root: THREE.Object3D, gl: THREE.WebGLRenderer) {
+  // GLB ships textured PBR mats: enforce moire-safe sampling. Defaults from
+  // GLTFLoader are LinearMipmapLinear/Linear + sRGB/linear split (correct),
+  // but anisotropy stays 1 -> grazing angles shimmer. Cap at 8.
+  if (maxAniso === null) maxAniso = Math.min(gl.capabilities.getMaxAnisotropy(), 8);
+  const aniso = maxAniso;
+  root.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const m = mesh.material as THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[];
+    const mats = Array.isArray(m) ? m : [m];
+    for (const mat of mats) {
+      if (!mat || !("roughness" in mat)) continue;
+      const maps: Array<THREE.Texture | null> = [mat.map, mat.roughnessMap, mat.metalnessMap];
+      for (const t of maps) {
+        if (!t) continue;
+        t.minFilter = THREE.LinearMipmapLinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.generateMipmaps = true;
+        if (t.anisotropy < aniso) {
+          t.anisotropy = aniso;
+          t.needsUpdate = true;
+        }
+      }
+    }
+  });
+}
 
 function hygiene(root: THREE.Object3D) {
   // textureless pipeline: GLB ships M_ mats + vertex colors; keep them, only fix flags
@@ -40,12 +70,14 @@ function findNode(root: THREE.Object3D, names: string[]): THREE.Object3D | null 
 
 function Model({ url, ...props }: { url: string } & JSX.IntrinsicElements["group"]) {
   const { scene } = useGLTF(url);
+  const gl = useThree((s) => s.gl);
   // ponytail: clone(true) shares geometries/materials across instances
   const obj = useMemo(() => {
     const c = scene.clone(true);
     hygiene(c);
+    textureHygiene(c, gl);
     return c;
-  }, [scene]);
+  }, [scene, gl]);
   return <primitive object={obj} {...props} />;
 }
 
@@ -144,18 +176,20 @@ export function Campfire(props: JSX.IntrinsicElements["group"]) {
 function CampfireInner({ url, ...props }: { url: string } & JSX.IntrinsicElements["group"]) {
   const { scene } = useGLTF(url);
   const { scene: rockScene } = useGLTF(assets.rocks);
+  const gl = useThree((s) => s.gl);
   const active = useCampingStore((s) => s.campfireActive);
   const group = useRef<THREE.Group>(null);
   const light = useRef<THREE.PointLight>(null);
   const flames = useMemo(() => {
     const c = scene.clone(true);
     hygiene(c);
+    textureHygiene(c, gl);
     const outer = findNode(c, ["Campfire_Flame_Outer"]);
     const mid = findNode(c, ["Campfire_Flame_Mid"]);
     const inner = findNode(c, ["Campfire_Flame_Inner"]);
     // ponytail: baked Campfire_Rocks removed at source; stones come from rocks.glb
     return { root: c, outer, mid, inner };
-  }, [scene]);
+  }, [scene, gl]);
 
   const stones = useMemo(() => {
     const src = findNode(rockScene, ["Rock_Small"]);
@@ -171,8 +205,9 @@ function CampfireInner({ url, ...props }: { url: string } & JSX.IntrinsicElement
       g.add(s);
     }
     hygiene(g);
+    textureHygiene(g, gl);
     return g;
-  }, [rockScene]);
+  }, [rockScene, gl]);
 
   useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime;
@@ -263,6 +298,7 @@ const PEBBLE_SPOTS = meadowSpots(51, 22);
 
 export function Meadow() {
   const { scene } = useGLTF(assets.meadow);
+  const gl = useThree((s) => s.gl);
   const group = useMemo(() => {
     const g = new THREE.Group();
     const src = (name: string) => {
@@ -270,6 +306,7 @@ export function Meadow() {
       if (!n) return null;
       const c = n.clone(true);
       hygiene(c);
+      textureHygiene(c, gl);
       return c;
     };
     const tuft = src("GrassTuft");
@@ -291,7 +328,7 @@ export function Meadow() {
     place(pink, PINK_SPOTS);
     place(pebble, PEBBLE_SPOTS);
     return g;
-  }, [scene]);
+  }, [scene, gl]);
   return <primitive object={group} />;
 }
 
@@ -305,12 +342,14 @@ export function Lantern(props: JSX.IntrinsicElements["group"]) {
 
 function LanternInner({ url, ...props }: { url: string } & JSX.IntrinsicElements["group"]) {
   const { scene, animations } = useGLTF(url);
+  const gl = useThree((s) => s.gl);
   const active = useCampingStore((s) => s.lanternActive);
   const group = useRef<THREE.Group>(null);
   const light = useRef<THREE.PointLight>(null);
   const glowMat = useRef<THREE.MeshStandardMaterial | null>(null);
   const root = useMemo(() => {
     const c = scene.clone(true);
+    textureHygiene(c, gl);
     c.traverse((o) => {
       if ((o as THREE.Mesh).isMesh) {
         o.castShadow = true;
@@ -325,7 +364,7 @@ function LanternInner({ url, ...props }: { url: string } & JSX.IntrinsicElements
       }
     });
     return c;
-  }, [scene]);
+  }, [scene, gl]);
   const mixer = useMemo(() => new THREE.AnimationMixer(root), [root]);
   const actions = useMemo(
     () => animations.map((clip) => mixer.clipAction(clip, root)),

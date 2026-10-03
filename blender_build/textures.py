@@ -105,18 +105,18 @@ def _hbar(buf, w, h, x, y, length, luma, tint=(1.0, 1.0, 1.0)):
 # ---------------------------------------------------------------- painters
 
 def grass_albedo(buf, w, h):
-    rng = random.Random(11)
+    # low-freq only: broad fbm patches + a few large soil blobs. No blades:
+    # 1-2px strokes alias into diagonal lines at isometric distance.
     def shade(x, y):
+        patch = fbm(x, y, (128, 64, 32), 3)
         warm = vnoise(x, y, 128, 71) < 0.5
-        return 232 + _d(fbm(x, y, (64, 16), 3), 14), \
-               (1.03, 1.0, 0.97) if warm else (0.97, 1.0, 1.03)
+        luma = 228 + _d(patch, 10)
+        return luma, (1.03, 1.0, 0.97) if warm else (0.97, 1.0, 1.03)
     _fill(buf, w, h, shade)
-    for _ in range(1800):                      # vertical blade strokes
-        g = 1.0 + rng.uniform(-0.08, 0.08)
-        _vbar(buf, w, h, rng.randrange(w), rng.randrange(h), rng.choice((1, 1, 2)),
-              rng.randint(5, 12), rng.choice((190, 245)), (1.0, g, 1.0))
-    for _ in range(40):                        # bare soil showing through
-        _disc(buf, w, h, rng.randrange(w), rng.randrange(h), 9, 175, (1.06, 1.0, 0.88))
+    rng = random.Random(11)
+    for _ in range(14):                          # large soft soil patches
+        r = rng.randint(28, 60)
+        _disc(buf, w, h, rng.randrange(w), rng.randrange(h), r, 178, (1.06, 1.0, 0.88))
 
 def grass_rough(buf, w, h):
     _fill(buf, w, h, lambda x, y: (228 + _d(fbm(x, y, (64, 16), 5), 18), (1, 1, 1)))
@@ -124,65 +124,54 @@ def grass_rough(buf, w, h):
 def soil_albedo(buf, w, h):
     rng = random.Random(12)
     def shade(x, y):
-        return 225 + _d(fbm(x, y, (32, 10), 7), 16), (1.04, 1.0, 0.92)
+        return 225 + _d(fbm(x, y, (64, 32), 7), 12), (1.04, 1.0, 0.92)
     _fill(buf, w, h, shade)
-    for _ in range(300):                       # pebble dots
-        _disc(buf, w, h, rng.randrange(w), rng.randrange(h), rng.randint(2, 4),
-              rng.choice((195, 240)), (1.03, 1.0, 0.95))
+    for _ in range(40):                          # a few large pebble blobs, no dots
+        _disc(buf, w, h, rng.randrange(w), rng.randrange(h), rng.randint(8, 16),
+              rng.choice((200, 240)), (1.03, 1.0, 0.95))
 
 def canvas_albedo(buf, w, h):
+    # low-freq canvas: broad tonal bands, no 4px checker weave (aliases badly)
     def shade(x, y):
-        weave = (5 if (x // 4) % 2 else -5) + (5 if (y // 4) % 2 else -5)
-        return 234 + weave + _d(fbm(x, y, (32, 8), 13), 8), (1, 1, 1)
+        return 234 + _d(fbm(x, y, (64, 32), 13), 7), (1, 1, 1)
     _fill(buf, w, h, shade)
 
 def canvas_rough(buf, w, h):
     _fill(buf, w, h, lambda x, y: (236 + _d(fbm(x, y, (48, 16), 17), 15), (1, 1, 1)))
 
 def foliage_albedo(buf, w, h):
-    rng = random.Random(14)
+    # low-freq foliage: broad patches only. No per-pixel hash drift, no leaf
+    # ellipses: sub-pixel speckle is the classic foliage moire source.
     def shade(x, y):
-        t = (_h(x, y, 23) - 0.5) * 0.12      # deterministic per-pixel hue drift
-        return 230 + _d(fbm(x, y, (48, 12), 19), 16), (1 + t, 1 + t, 1 - t)
+        return 230 + _d(fbm(x, y, (64, 32), 19), 12), (1.0, 1.02, 0.98)
     _fill(buf, w, h, shade)
-    for _ in range(1400):                      # leaf ellipses
-        rx = rng.randint(3, 8); ry = max(2, rx + rng.randint(-2, 3))
-        t = rng.uniform(-0.06, 0.06)
-        _ellipse(buf, w, h, rng.randrange(w), rng.randrange(h), rx, ry,
-                 rng.choice((200, 245)), (1 + t, 1 + t, 1 - t))
 
 def foliage_rough(buf, w, h):
     _fill(buf, w, h, lambda x, y: (217 + _d(fbm(x, y, (48, 12), 29), 20), (1, 1, 1)))
 
 def stone_albedo(buf, w, h):
-    rng = random.Random(16)
+    # low-freq stone: broad mottling. No per-pixel speckle, no pits.
     def shade(x, y):
-        speckle = (_h(x, y, 31) - 0.5) * 20
-        return 232 + _d(fbm(x, y, (64, 24), 37), 22) + speckle, (1, 1, 1)
+        return 232 + _d(fbm(x, y, (64, 32), 37), 14), (1, 1, 1)
     _fill(buf, w, h, shade)
-    for _ in range(60):                        # pits
-        _disc(buf, w, h, rng.randrange(w), rng.randrange(h), 3, 150, (1, 1, 1))
 
 def stone_rough(buf, w, h):
     _fill(buf, w, h, lambda x, y: (178 + _d(fbm(x, y, (64, 24), 41), 26), (1, 1, 1)))
 
 def wood_albedo(buf, w, h):
-    rng = random.Random(18)
+    # low-freq wood: slow sine grain, no per-pixel hash, no thin streaks
     def shade(x, y):
-        grain = 230 + 26 * math.sin(y * 0.45 + fbm(x, y, (16, 4), 43) * 6)
-        return grain + (_h(x, y, 47) - 0.5) * 12, (1, 1, 1)
+        grain = 230 + 20 * math.sin(y * 0.15 + fbm(x, y, (32, 16), 43) * 4)
+        return grain, (1, 1, 1)
     _fill(buf, w, h, shade)
-    for _ in range(18):                        # dark streaks along the grain
-        _hbar(buf, w, h, rng.randrange(w), rng.randrange(h), rng.randint(40, 100),
-              170, (1.0, 0.97, 0.93))
 
 def wood_rough(buf, w, h):
     _fill(buf, w, h, lambda x, y: (205 + _d(fbm(x, y, (32, 8), 53), 20), (1, 1, 1)))
 
 def metal_albedo(buf, w, h):
+    # low-freq metal: broad tone, no per-column brushed streaks
     def shade(x, y):
-        brushed = (_h(x, 0, 59) - 0.5) * 20   # constant per column -> vertical streaks
-        return 210 + brushed + _d(fbm(x, y, (64, 16), 61), 5), (1, 1, 1)
+        return 210 + _d(fbm(x, y, (64, 32), 61), 5), (1, 1, 1)
     _fill(buf, w, h, shade)
 
 def metal_rough(buf, w, h):
