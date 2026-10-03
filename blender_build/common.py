@@ -221,6 +221,13 @@ def lift_to_zero(obj):
     if d > 1e-6:
         obj.data.transform(Matrix.Translation((0, 0, d)))
 
+def bake_transforms(o):
+    # bake location/rotation/scale into mesh data, reset object to identity.
+    # join() + the runner's transform_apply must never see a non-identity
+    # part, otherwise offsets get applied twice (measured: flower +0.150).
+    select_only([o])
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
 def export_glb(objs, path, anim=False):
     select_only(objs)
     bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True,

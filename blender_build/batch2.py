@@ -122,12 +122,12 @@ def build_pine():
     for i in range(len(col.data)): col.data[i].color=C('M_Trunk')
     for poly in m.polygons: poly.use_smooth=False
     m.materials.append(get_mat('M_Trunk')); trunk_parts.append(tr)
-    for i in range(5):  # root flare blobs around the base
-        # blob() returns origin-centered geo: position via location, then lift
+    for i in range(5):  # root flare blobs around the base, wide enough
+        # to swallow the trunk bottom (trunk r=0.16) so no floating edge shows
         a=i/5*2*math.pi+0.3
-        cx,cy,cz=math.cos(a)*0.22,0.12,math.sin(a)*0.22
+        cx,cy,cz=math.cos(a)*0.19,0.10,math.sin(a)*0.19
         o=blob('Pine_Root_%d'%(i+1),'Pine_Root_%d'%(i+1),
-               (0,0,0),(0.26,0.11,0.13),'M_Trunk',51+i,detail=1)
+               (0,0,0),(0.28,0.10,0.14),'M_Trunk',51+i,detail=1)
         o.location=(cx,cz,cy)
         lift_to_zero(o)
         trunk_parts.append(o)
@@ -191,6 +191,10 @@ def build_meadow():
         for li in range(len(col.data)): col.data[li].color=C('M_Grass',0.05,seed=i*3+li)
         for poly in m.polygons: poly.use_smooth=False
         m.materials.append(get_mat('M_Grass')); blades.append(b)
+    # bake every part to identity BEFORE join so no offset can survive twice,
+    # then a single lift_to_zero on the joined result fixes the base
+    bpy.context.view_layer.update()
+    for b in blades: bake_transforms(b)
     select_only(blades); bpy.ops.object.join()
     tuft=bpy.context.view_layer.objects.active; tuft.name='GrassTuft'; tuft.data.name='GrassTuft'
     lift_to_zero(tuft); parts.append(tuft)
@@ -221,6 +225,8 @@ def build_meadow():
             for li in range(len(col.data)): col.data[li].color=C(petal_mat,0.03,seed=fseed+k)
             for poly in m.polygons: poly.use_smooth=False
             m.materials.append(get_mat(petal_mat)); fparts.append(p)
+        bpy.context.view_layer.update()
+        for o in fparts: bake_transforms(o)
         select_only(fparts); bpy.ops.object.join()
         fl=bpy.context.view_layer.objects.active; fl.name=fname; fl.data.name=fname
         lift_to_zero(fl); parts.append(fl)
