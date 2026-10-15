@@ -1,6 +1,6 @@
-import { useGLTF } from "@react-three/drei";
+import { useGLTF, Html } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Component, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import * as THREE from "three";
 import { assets } from "../../lib/asset-config.ts";
@@ -81,18 +81,40 @@ function Model({ url, ...props }: { url: string } & JSX.IntrinsicElements["group
   return <primitive object={obj} {...props} />;
 }
 
+// PRD §35: one failed GLB must not crash the scene — hide just that object.
+class AssetBoundary extends Component<{ children: React.ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: unknown) {
+    if (import.meta.env.DEV) console.error("[GLB load failed]", error);
+  }
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 function Loader({ url, children }: { url: string; children: (url: string) => React.ReactNode }) {
-  return <Suspense fallback={null}>{children(url)}</Suspense>;
+  return (
+    <AssetBoundary>
+      <Suspense fallback={null}>{children(url)}</Suspense>
+    </AssetBoundary>
+  );
 }
 
 function Interactive({
   objectId,
+  label,
+  labelHeight = 2,
   children,
   ...props
-}: { objectId: SelectableId; children: React.ReactNode } & Omit<
-  JSX.IntrinsicElements["group"],
-  "id"
->) {
+}: {
+  objectId: SelectableId;
+  label: string;
+  labelHeight?: number;
+  children: React.ReactNode;
+} & Omit<JSX.IntrinsicElements["group"], "id">) {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const selected = useCampingStore((s) => s.selected === objectId);
@@ -107,6 +129,8 @@ function Interactive({
     const s = THREE.MathUtils.damp(g.scale.x, target, 12, dt);
     g.scale.setScalar(s);
   });
+
+  const showLabel = hovered || selected;
 
   return (
     <group
@@ -123,6 +147,14 @@ function Interactive({
       {...props}
     >
       {children}
+      {showLabel && (
+        <Html position={[0, labelHeight, 0]} center distanceFactor={14} zIndexRange={[20, 0]}>
+          {/* DOM chip: keeps the page font, no webfont fetch, screen-reader visible */}
+          <span className="pointer-events-none select-none whitespace-nowrap rounded-full bg-[#101623]/80 px-2.5 py-1 text-[11px] font-medium text-[#f5ead6] shadow-sm ring-1 ring-white/10">
+            {label}
+          </span>
+        </Html>
+      )}
     </group>
   );
 }
@@ -156,14 +188,45 @@ export function PineTree({
 export function Tent(props: JSX.IntrinsicElements["group"]) {
   return (
     <Loader url={assets.tent}>
-      {(url) => (
-        <Interactive objectId="tent" {...props}>
-          <Model url={url} />
-        </Interactive>
-      )}
+      {(url) => <TentInner url={url} {...props} />}
     </Loader>
   );
 }
+
+function TentInner({ url, ...props }: { url: string } & JSX.IntrinsicElements["group"]) {
+  const { scene } = useGLTF(url);
+  const gl = useThree((s) => s.gl);
+  const open = useCampingStore((s) => s.tentOpen);
+  const flap = useMemo(() => {
+    const c = scene.clone(true);
+    hygiene(c);
+    textureHygiene(c, gl);
+    const f = findNode(c, ["Tent_Flap"]);
+    if (!f || !f.parent) return { root: c, pivot: null as THREE.Object3D | null };
+    // hinge at the flap's top edge (world ~ y1.5, z-1.5); the mesh is baked
+    // ~20deg open, so swing further from that base.
+    const worldPos = new THREE.Vector3(0, 1.5, -1.5);
+    const pivot = new THREE.Group();
+    pivot.position.copy(worldPos);
+    f.position.sub(worldPos);
+    f.parent.add(pivot);
+    pivot.add(f);
+    return { root: c, pivot };
+  }, [scene, gl]);
+
+  useFrame((_, dt) => {
+    if (!flap.pivot) return;
+    const target = open ? -Math.PI / 3 : 0;
+    flap.pivot.rotation.x = THREE.MathUtils.damp(flap.pivot.rotation.x, target, 6, dt);
+  });
+
+  return (
+    <Interactive objectId="tent" label="Tent" labelHeight={2.6} {...props}>
+      <primitive object={flap.root} />
+    </Interactive>
+  );
+}
+
 
 export function Campfire(props: JSX.IntrinsicElements["group"]) {
   return (
@@ -178,6 +241,7 @@ function CampfireInner({ url, ...props }: { url: string } & JSX.IntrinsicElement
   const { scene: rockScene } = useGLTF(assets.rocks);
   const gl = useThree((s) => s.gl);
   const active = useCampingStore((s) => s.campfireActive);
+  const weather = useCampingStore((s) => s.weather);
   const group = useRef<THREE.Group>(null);
   const light = useRef<THREE.PointLight>(null);
   const flames = useMemo(() => {
@@ -211,33 +275,42 @@ function CampfireInner({ url, ...props }: { url: string } & JSX.IntrinsicElement
 
   useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime;
+    const wet = weather === "rain" ? 0.55 : 1; // rain shrinks the fire (storytelling)
     if (flames.outer) {
       flames.outer.visible = active;
-      flames.outer.scale.set(1 + Math.sin(t * 9) * 0.06, 1 + Math.sin(t * 11) * 0.14, 1 + Math.cos(t * 9) * 0.06);
+      flames.outer.scale.set(
+        (1 + Math.sin(t * 9) * 0.06) * wet,
+        (1 + Math.sin(t * 11) * 0.14) * wet,
+        (1 + Math.cos(t * 9) * 0.06) * wet,
+      );
       flames.outer.rotation.y = Math.sin(t * 3) * 0.25;
     }
     if (flames.mid) {
       flames.mid.visible = active;
       flames.mid.scale.set(
-        1 + Math.sin(t * 10.5 + 1) * 0.07,
-        1 + Math.sin(t * 12 + 2) * 0.16,
-        1 + Math.cos(t * 10.5) * 0.07,
+        (1 + Math.sin(t * 10.5 + 1) * 0.07) * wet,
+        (1 + Math.sin(t * 12 + 2) * 0.16) * wet,
+        (1 + Math.cos(t * 10.5) * 0.07) * wet,
       );
       flames.mid.rotation.y = -Math.sin(t * 3.5 + 1) * 0.28;
     }
     if (flames.inner) {
       flames.inner.visible = active;
-      flames.inner.scale.set(1 + Math.cos(t * 12) * 0.08, 1 + Math.sin(t * 13 + 1) * 0.18, 1 + Math.sin(t * 12) * 0.08);
+      flames.inner.scale.set(
+        (1 + Math.cos(t * 12) * 0.08) * wet,
+        (1 + Math.sin(t * 13 + 1) * 0.18) * wet,
+        (1 + Math.sin(t * 12) * 0.08) * wet,
+      );
       flames.inner.rotation.y = -Math.sin(t * 4) * 0.3;
     }
     if (light.current) {
-      const target = active ? 6 + Math.sin(t * 10) * 1.2 + Math.sin(t * 23) * 0.6 : 0;
+      const target = active ? (6 + Math.sin(t * 10) * 1.2 + Math.sin(t * 23) * 0.6) * wet : 0;
       light.current.intensity = THREE.MathUtils.damp(light.current.intensity, target, 10, dt);
     }
   });
 
   return (
-    <Interactive objectId="campfire" {...props}>
+    <Interactive objectId="campfire" label="Campfire" labelHeight={1.9} {...props}>
       <group ref={group}>
         <primitive object={flames.root} />
         {stones && <primitive object={stones} />}
@@ -404,7 +477,7 @@ function LanternInner({ url, ...props }: { url: string } & JSX.IntrinsicElements
   });
 
   return (
-    <Interactive objectId="lantern" {...props}>
+    <Interactive objectId="lantern" label="Lantern" labelHeight={1.0} {...props}>
       <group ref={group}>
         <group ref={swing}>
           <primitive object={root} />

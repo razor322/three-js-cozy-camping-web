@@ -80,12 +80,19 @@ export default function Environment() {
       <color attach="background" args={["#aee2ff"]} />
       <fog attach="fog" args={["#aee2ff", 28, 55]} />
       <ambientLight ref={ambient} intensity={0.55} />
+      {/* hemisphere fill: sky tint above, warm ground bounce below. Keeps
+          shadow interiors warm instead of crushed black under ACES. */}
+      <hemisphereLight args={["#bcd7ff", "#6b4a32", 0.35]} />
       <directionalLight
         ref={sun}
         position={[8, 12, 6]}
         intensity={1.35}
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.02}
+        shadow-camera-near={0.5}
+        shadow-camera-far={50}
         shadow-camera-left={-12}
         shadow-camera-right={12}
         shadow-camera-top={12}

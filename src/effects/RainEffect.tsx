@@ -20,6 +20,16 @@ const COUNT =
     ? MOBILE_COUNT
     : DESKTOP_COUNT;
 
+// ponytail: seeded at module scope -> stable across StrictMode double-render
+const BASE_POSITIONS = (() => {
+  const a = new Float32Array(COUNT * 2);
+  for (let i = 0; i < COUNT; i++) {
+    a[i * 2] = Math.random() * 20 - 10;
+    a[i * 2 + 1] = Math.random() * 20 - 10;
+  }
+  return a;
+})();
+
 export default function RainEffect() {
   const weather = useCampingStore((s) => s.weather);
   const active = weather === "rain";
@@ -30,14 +40,7 @@ export default function RainEffect() {
     () => new THREE.MeshStandardMaterial({ color: "#a0c8f0", roughness: 0.5, transparent: true, opacity: 0 }),
     [],
   );
-  const positions = useMemo(() => {
-    const a = new Float32Array(COUNT * 2);
-    for (let i = 0; i < COUNT; i++) {
-      a[i * 2] = Math.random() * 20 - 10;
-      a[i * 2 + 1] = Math.random() * 20 - 10;
-    }
-    return a;
-  }, []);
+  const positions = BASE_POSITIONS;
 
   useFrame((_, dt) => {
     if (!grp.current) return;

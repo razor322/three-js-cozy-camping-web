@@ -1,28 +1,60 @@
 import { OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
-import { sceneConfig } from "../../lib/scene-config.ts";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Suspense, useRef } from "react";
+import * as THREE from "three";
+import { focusAnchors, GROUND_Y, sceneConfig } from "../../lib/scene-config.ts";
 import Environment from "../../effects/Environment.tsx";
 import Fireflies from "../../effects/Fireflies.tsx";
 import RainEffect from "../../effects/RainEffect.tsx";
+import SceneIntro from "../../effects/SceneIntro.tsx";
+import SmokePlume from "../../effects/SmokePlume.tsx";
+import Wildlife from "../../effects/Wildlife.tsx";
+import { useCampingStore } from "../../stores/campingStore.ts";
 import { Bush, Campfire, Ground, Lantern, Meadow, PineTree, RockSet, Stump, Tent } from "./models.tsx";
 
-// ground flat-top sits at y=0.8 (bbox 0..0.814); props use it as reference
-const G = 0.8;
+const G = GROUND_Y;
+
+// Dollies the orbit pivot toward the selected object, back to home on deselect.
+// Keeps the user's orbit angle: only the target point and distance move.
+function CameraRig() {
+  const selected = useCampingStore((s) => s.selected);
+  const controls = useThree((s) => s.controls) as { target: THREE.Vector3; update: () => void } | null;
+  const home = sceneConfig.camera.homeTarget;
+  const tmp = useRef(new THREE.Vector3());
+
+  useFrame((_, dt) => {
+    if (!controls) return;
+    const anchor = selected ? focusAnchors[selected].look : null;
+    const goal = tmp.current.set(...(anchor ?? home));
+    // move the pivot smoothly; OrbitControls keeps its own camera offset
+    controls.target.lerp(goal, 1 - Math.pow(0.001, dt));
+    controls.update();
+  });
+  return null;
+}
 
 export default function CampingScene() {
   const { camera } = sceneConfig;
   return (
     <Canvas
-      shadows="basic"
+      shadows
       dpr={[1, 1.5]}
       gl={{ antialias: true, powerPreference: "high-performance" }}
       camera={{ position: camera.position, fov: camera.fov }}
+      onCreated={({ gl }) => {
+        // ACES keeps highlights (flame, lantern) from clipping to flat white
+        // while the low-poly palette stays warm. AgX is flatter; ACES reads cozy.
+        gl.toneMapping = THREE.ACESFilmicToneMapping;
+        gl.toneMappingExposure = 1.05;
+      }}
       className="!fixed !inset-0"
     >
+      <SceneIntro />
       <Environment />
       <RainEffect />
       <Fireflies />
+      <SmokePlume position={[1.2, G, 1.2]} />
+      <Wildlife />
       <Suspense fallback={null}>
         <Ground />
         <Meadow />
@@ -55,7 +87,7 @@ export default function CampingScene() {
       </Suspense>
       <OrbitControls
         makeDefault
-        target={[0, 0, 0]}
+        target={sceneConfig.camera.homeTarget}
         minDistance={camera.minDistance}
         maxDistance={camera.maxDistance}
         minPolarAngle={camera.minPolarAngle}
@@ -64,6 +96,7 @@ export default function CampingScene() {
         maxAzimuthAngle={Math.PI / 3}
         enablePan={false}
       />
+      <CameraRig />
     </Canvas>
   );
 }

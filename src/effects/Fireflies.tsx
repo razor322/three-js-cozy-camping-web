@@ -6,6 +6,14 @@ import { useCampingStore } from "../stores/campingStore.ts";
 const COUNT = 80;
 const GROUND_TOP = 0.8;
 
+// ponytail: seeded at module scope -> stable across StrictMode double-render
+const SEED_POS = Array.from({ length: COUNT }, () => [
+  Math.random() * 16 - 8,
+  GROUND_TOP + 0.3 + Math.random() * 2.2,
+  Math.random() * 14 - 7,
+]);
+const SEED_PHASE = Array.from({ length: COUNT }, () => Math.random());
+
 // ponytail: skills threejs-geometry (Points + BufferGeometry) + threejs-shaders
 // (time uniform, gl_PointCoord sprite). No new deps.
 export default function Fireflies() {
@@ -17,10 +25,10 @@ export default function Fireflies() {
     const pos = new Float32Array(COUNT * 3);
     const phase = new Float32Array(COUNT);
     for (let i = 0; i < COUNT; i++) {
-      pos[i * 3] = Math.random() * 16 - 8;
-      pos[i * 3 + 1] = GROUND_TOP + 0.3 + Math.random() * 2.2;
-      pos[i * 3 + 2] = Math.random() * 14 - 7;
-      phase[i] = Math.random();
+      pos[i * 3] = SEED_POS[i][0];
+      pos[i * 3 + 1] = SEED_POS[i][1];
+      pos[i * 3 + 2] = SEED_POS[i][2];
+      phase[i] = SEED_PHASE[i];
     }
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     g.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));

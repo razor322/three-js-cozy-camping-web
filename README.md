@@ -26,9 +26,18 @@ tailwindcss v4 (@tailwindcss/vite)
 ```text
 drag        orbit (azimuth limited +-60deg)
 scroll      zoom (8-30m)
-click       tent / campfire / lantern -> info panel (Esc closes)
+click       tent / campfire / lantern -> camera focus + info panel (Esc closes)
+hover       floating name label on each interactive object
 panel btn   Turn Fire / Lantern On-Off
-pill bar    Day / Sunset / Night + Clear / Rain
+pill bar    Day / Sunset / Night + Auto-cycle + Clear / Rain + Sound on-off
+```
+
+## Ambience
+
+```text
+Audio       procedural WebAudio synth (fire crackle + night crickets), no files
+Default     muted; unmute via the Sound pill (PRD §37 - no autoplay)
+Auto cycle  steps Day -> Sunset -> Night every 16s while enabled
 ```
 
 ## 3D features
@@ -39,8 +48,14 @@ Lantern     2 baked GLB clips (swing + glow-pulse) via mixer + emissive/light fo
 Environment day/sunset/night lerp (~2s): sky/sun/fog + 400 stars + moon
 Rain        800 instanced drops (400 mobile) + ambient/fog dim
 Fireflies   80 Points + custom shader (twinkle/drift), night-only, dimmed by rain
-Camera      isometric-ish (12,10,12) fov 40, polar clamp, pan off
-Perf        DPR [1,1.5], basic shadows 1024, clone(true) sharing, preloaded GLB
+Smoke       24-point plume above the fire (fades, thinner in rain)
+Tent        hinged flap opens/closes on click
+Wildlife    2 hopping rabbits on seeded paths (three.js primitives)
+Photo       photo mode hides the UI and downloads a PNG of the canvas
+Camera      isometric-ish (14,12,14) fov 45, polar clamp, pan off, focus-dolly on select
+Render      ACES tone mapping (exposure 1.05), PCF soft shadows 2048, hemi fill light
+Perf        DPR [1,1.5], basic shadows, clone(true) sharing, preloaded GLB
+```
 
 ## Rebuild assets
 
@@ -54,18 +69,19 @@ python tools/validate_glb.py   # 9 files, total must stay under 1.6MB (target 1.
 
 ```text
 cozy-camping/
-  public/models/        9 GLB (~1.24MB total)
+  public/models/        9 GLB (~813KB total)
     ground, pine-tree, tent, campfire, logs, rocks, bush, lantern, meadow
   src/
     app/App.tsx         router (/ -> /camping)
     pages/              CampingPage (Canvas + header + panels + controls)
-    scenes/camping/     CampingScene + models.tsx (loader + Interactive + fire/lantern + Meadow)
+    scenes/camping/     CampingScene (canvas + CameraRig) + models.tsx (loader + Interactive + fire/lantern + Meadow)
     effects/            Environment.tsx (day/night lerp) + RainEffect.tsx + Fireflies.tsx
+                        useAmbience.ts (WebAudio) + useAutoTime.ts (cycle)
     components/         LoadingScreen + ObjectPanel + EnvironmentControls
     stores/             campingStore.ts (zustand)
-    lib/                scene-config.ts + asset-config.ts
+    lib/                scene-config.ts (camera, focusAnchors) + asset-config.ts
   camping-assets/       Blender source (camping_scene.blend)
-  docs/development/     PRD + ROADMAP + ARCHITECTURE
+  docs/development/     PRD + ROADMAP + ARCHITECTURE + REPAIR_PLAN
 ```
 
 ## Blender -> GLB pipeline
